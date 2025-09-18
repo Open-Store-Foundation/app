@@ -96,4 +96,4 @@ jobs:
           wrangler r2 object put "openstore-foundation/release/android/latest" \
             --remote \
             --file "latest.txt" \
-            --content-type "plain/text"
+            --content-type "text/plain"
