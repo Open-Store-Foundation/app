@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name" translatable="false">Open Store</string>
+    <string name="app_desc" translatable="false">Open Storeis a secure and easy-to-use mobile wallet</string>
+    <string name="app_url" translatable="false">https://openstore.com</string>
+    <string name="one" translatable="false">1</string>
+    <string name="two" translatable="false">2</string>
+    <string name="three" translatable="false">3</string>
+    <string name="four" translatable="false">4</string>
+    <string name="five" translatable="false">5</string>
+    <string name="six" translatable="false">6</string>
+    <string name="seven" translatable="false">7</string>
+    <string name="eight" translatable="false">8</string>
+    <string name="nine" translatable="false">9</string>
+    <string name="zero" translatable="false">0</string>
+    <string name="dot" translatable="false">.</string>
+    <string name="emptyBalance" translatable="false">--</string>
+    <string name="EmptyString" translatable="false" />
+    <string name="Google" translatable="false">Google</string>
+    <string name="DuckDuckGo" translatable="false">DuckDuckGo</string>
+    <string name="bullet" translatable="false">&#8226;</string>
+    <string name="WalletConnect" translatable="false">WalletConnect</string>
+    <string name="NonAuto" translatable="false">Non-Auto</string>
+    <string name="Percent25" translatable="false">25%</string>
+    <string name="Percent50" translatable="false">50%</string>
+    <string name="Percent75" translatable="false">75%</string>
+    <string name="GooglePay" translatable="false">Google Pay</string>
+</resources>

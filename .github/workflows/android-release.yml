@@ -1,0 +1,99 @@
+name: Android Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tagName:
+        description: Tag name for new release
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check for main branch
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "This workflow can only be run on the main branch - ${{ github.ref }}"
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Install Cloudflare Wrangler
+        run: npm install -g wrangler
+
+      - name: Get the version
+        id: get_version
+        run: |
+          TAG=${{ github.event.inputs.tagName }}
+          VERSION_NAME=${TAG#v}
+          VERSION_CODE=$(git log -1 --format=%ct HEAD)
+          BUILD_TOOLS_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
+          
+          echo "TAG=$TAG"
+          echo "VERSION_NAME=$VERSION_NAME"
+          echo "VERSION_CODE=$VERSION_CODE"
+          echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION"
+          
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+          echo "BUILD_TOOLS_VERSION=$BUILD_TOOLS_VERSION" >> $GITHUB_ENV
+
+      - name: Build with Gradle
+        run: ./gradlew --no-build-cache --no-daemon app:assembleRelease -PversionCode=$VERSION_CODE -PversionName=$VERSION_NAME
+
+      - name: Sign APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_apk
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+          alias: ${{ secrets.ANDROID_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Create GitHub Release and Upload Binaries
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create release
+          gh release create "${TAG}" \
+            --title "Release ${TAG}" \
+            --generate-notes \
+            --latest \
+            "${{ steps.sign_apk.outputs.signedReleaseFile }}#OpenStore-${TAG}.apk"
+
+      - name: Upload to Cloudflare R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler r2 object put "openstore-foundation/release/android/${TAG}/app.apk" \
+            --remote \
+            --file "${{ steps.sign_apk.outputs.signedReleaseFile }}" \
+            --content-type "application/vnd.android.package-archive"
+          
+          echo "${TAG}" >> latest.txt
+          echo "$VERSION_CODE" >> latest.txt
+          echo "SHA256 0x$(openssl dgst -sha256 ${{ steps.sign_apk.outputs.signedReleaseFile }} | awk '{print $2}')" >> latest.txt
+          
+          wrangler r2 object put "openstore-foundation/release/android/latest" \
+            --remote \
+            --file "latest.txt" \
+            --content-type "plain/text"

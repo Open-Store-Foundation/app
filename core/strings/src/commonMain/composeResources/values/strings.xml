@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="Delete">Delete</string>
+    <string name="HideReport">Hide and report</string>
+    <string name="Copied">Copied: %s</string>
+    <string name="ComingSoon">Coming soon</string>
+    <string name="Allow">Allow</string>
+    <string name="Back">Back</string>
+    <string name="OK">OK</string>
+    <string name="SeeAll">See all</string>
+    <string name="Unavailable">Unavailable</string>
+    <string name="Sync">Syncing...</string>
+    <string name="Connecting">Connecting...</string>
+
+
+
+    <!-- App Categories -->
+    <string name="books">Books</string>
+    <string name="business">Business</string>
+    <string name="tools">Tools</string>
+    <string name="education">Education</string>
+    <string name="entertainment">Entertainment</string>
+    <string name="finance">Finance</string>
+    <string name="food_and_drink">Food &amp;amp; Drink</string>
+    <string name="graphics_and_design">Graphics &amp; Design</string>
+    <string name="health_and_fitness">Health &amp; Fitness</string>
+    <string name="lifestyle">Lifestyle</string>
+    <string name="newspapers">Newspapers</string>
+    <string name="medical">Medical</string>
+    <string name="app_music">Music</string>
+    <string name="navigation">Navigation</string>
+    <string name="news">News</string>
+    <string name="photo_and_video">Photo &amp; Video</string>
+    <string name="productivity">Productivity</string>
+    <string name="shopping">Shopping</string>
+    <string name="social_networking">Social Networking</string>
+    <string name="app_sports">Sports</string>
+    <string name="travel">Travel</string>
+    <string name="utilities">Utilities</string>
+    <string name="weather">Weather</string>
+
+    <!-- Game Categories -->
+    <string name="action">Action</string>
+    <string name="adventure">Adventure</string>
+    <string name="arcade">Arcade</string>
+    <string name="board">Board</string>
+    <string name="card">Card</string>
+    <string name="casino">Casino</string>
+    <string name="casual">Casual</string>
+    <string name="dice">Dice</string>
+    <string name="educational">Educational</string>
+    <string name="family">Family</string>
+    <string name="game_music">Music</string> <!-- Differentiated from app music -->
+    <string name="puzzle">Puzzle</string>
+    <string name="racing">Racing</string>
+    <string name="role_playing">Role Playing</string>
+    <string name="simulation">Simulation</string>
+    <string name="game_sports">Sports</string> <!-- Differentiated from app sports -->
+    <string name="strategy">Strategy</string>
+    <string name="trivia">Trivia</string>
+    <string name="word">Word</string>
+
+    <!-- Report Categories -->
+    <string name="report_category_trafficking">Prohibited goods and substances</string>
+    <string name="report_category_cybercrime">Cybercrime and Malicious activities</string>
+    <string name="report_category_financial_crime">Financial crimes and Fraud</string>
+    <string name="report_category_exploitation">Violence, Extremism, and Exploitation</string>
+    <string name="report_category_privacy">Violation of Privacy and Confidentiality</string>
+    <string name="report_category_other">Other</string>
+
+    <!-- Subcategories for Trafficking -->
+    <string name="report_subcategory_trafficking_narcotics">Narcotics and Controlled substances</string>
+    <string name="report_subcategory_trafficking_counterfeit">Counterfeit documents and Currency</string>
+    <string name="report_subcategory_trafficking_stolen_goods">Stolen goods and Property</string>
+
+    <!-- Subcategories for Cybercrime -->
+    <string name="report_subcategory_cybercrime_malware">Malware and Malicious Software</string>
+    <string name="report_subcategory_cybercrime_hacking">Hacking services and Tools</string>
+    <string name="report_subcategory_cybercrime_carding">Carding and Financial credential theft</string>
+
+    <!-- Subcategories for Financial Crime -->
+    <string name="report_subcategory_financial_crime_laundering">Money laundering</string>
+    <string name="report_subcategory_financial_crime_fraud">Fraud and Scams</string>
+    <string name="report_subcategory_financial_crime_stolen_data">Sale of Stolen data</string>
+
+    <!-- Subcategories for Exploitation -->
+    <string name="report_subcategory_exploitation_csam">Child Sexual Abuse Material (CSAM)</string>
+    <string name="report_subcategory_exploitation_human_trafficking">Human trafficking and Exploitation</string>
+    <string name="report_subcategory_exploitation_violence_for_hire">Contract Killing</string>
+    <string name="report_subcategory_exploitation_extremism">Terrorism</string>
+
+    <!-- Subcategories for Privacy Violations -->
+    <string name="report_subcategory_privacy_doxing">Sale of personal private information (Doxing)</string>
+    <string name="report_subcategory_privacy_surveillance">Illegal surveillance and Eavesdropping</string>
+</resources>
