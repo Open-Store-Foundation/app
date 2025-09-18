@@ -46,4 +46,4 @@
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**
 
--keep class okhttp3.internal.Util.**
+-keep class okhttp3.internal.*
