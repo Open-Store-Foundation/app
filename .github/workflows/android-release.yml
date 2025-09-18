@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Check for main branch
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         run: |
           echo "This workflow can only be run on the main branch - ${{ github.ref }}"
           exit 1
