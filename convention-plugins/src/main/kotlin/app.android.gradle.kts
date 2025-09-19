@@ -15,7 +15,7 @@ android {
     applyAndroidCommon(
         namespace = "com.openstore.app",
         versions = androidConf.appVersions,
-        applicationId = "com.openstore.app",
+        applicationId = "foundation.openstore.android",
     )
 
     buildFeatures {
