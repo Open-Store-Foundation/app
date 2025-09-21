@@ -172,8 +172,13 @@ val props = Properties().apply {
 
 android {
     defaultConfig {
-        versionCode = if (!System.getenv("VERSION_NAME").isNullOrBlank()) System.getenv("VERSION_CODE").toInt() else 1000000000
-        versionName = System.getenv("VERSION_NAME") ?: "0.1"
+        val _versionCode = rootProject.property("versionCode")?.toString()?.toInt() ?: 1000000000
+        val _versionName = rootProject.property("versionName")?.toString() ?: "0.1"
+
+        println("Actual ANDROID app version - $_versionName ($_versionCode)")
+
+        versionCode = _versionCode
+        versionName = _versionName
     }
 
     buildFeatures {
