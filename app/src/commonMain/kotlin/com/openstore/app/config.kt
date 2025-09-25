@@ -49,7 +49,7 @@ interface EnvConfig {
         override val ScanUrl: String = "https://testnet.bscscan.com"
         override val ApiUrl: String = "https://api.openstore.foundation"
         override val NodeUrl: String = "https://bsctest.node.openstore.foundation"
-        override val GfUrl: String = "https://gnfd-testnet-fullnode-tendermint-ap.bnbchain.org"
+        override val GfUrl: String = "https://gnfdtest.openstore.foundation"
     }
 
     object Lh : EnvConfig {
@@ -59,7 +59,7 @@ interface EnvConfig {
         override val ScanUrl: String = "https://testnet.bscscan.com"
         override val ApiUrl: String = "https://localhost:8080"
         override val NodeUrl: String = "https://localhost:8545"
-        override val GfUrl: String = "https://gnfd-testnet-fullnode-tendermint-ap.bnbchain.org"
+        override val GfUrl: String = "https://gnfdtest.openstore.foundation"
     }
 }
 
