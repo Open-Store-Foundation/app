@@ -70,6 +70,7 @@ include(
     ":core",
     ":core:common",
     ":core:os",
+    ":core:crypto",
     ":core:store",
     ":core:net",
     ":core:net:json-rpc",

@@ -13,7 +13,7 @@ class AppUpdateInteractorDefault(
 ) : AppUpdateInteractor {
 
     override suspend fun hasNewVersion(appAddress: String, packageName: String): Boolean {
-        val lastVersion = appChainService.getLastVersionInStore(appAddress, )
+        val lastVersion = appChainService.getLastVersionInStore(appAddress)
         if (lastVersion == null) {
             return false
         }

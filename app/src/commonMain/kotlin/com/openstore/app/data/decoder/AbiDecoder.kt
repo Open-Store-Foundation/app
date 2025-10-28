@@ -3,6 +3,7 @@ package com.openstore.app.data.decoder
 import com.ionspin.kotlin.bignum.integer.BigInteger
 import com.ionspin.kotlin.bignum.integer.Sign
 import com.openstore.app.core.common.remove0x
+import com.openstore.app.core.common.toLower0xHex
 import com.openstore.app.core.common.toUpper0xHex
 
 data class AppDistributionPluginV1Data(
@@ -12,8 +13,8 @@ data class AppDistributionPluginV1Data(
 
 data class AppOwnerPluginV1Version(
     val domain: String,
-    val fingerprints: List<ByteArray>, // List of 32-byte arrays
-    val proofs: List<ByteArray>        // List of variable-length byte arrays
+    val fingerprints: List<ByteArray>,
+    val blockNumber: Long
 )
 
 data class AppGeneralInfo(
@@ -33,15 +34,51 @@ data class AppBuild(
     val checksum: String,
 )
 
+data class AppOwnershipProofsInfo(
+    val version: Long,
+    val certs: List<ByteArray>,
+    val proofs: List<ByteArray>
+)
+
+data class AppAndOwnershipVersion(
+    val app: Long,
+    val ownership: Long,
+)
+
+data class AssetOwnershipStatus(
+    val status: Long,
+    val lastSuccessDelta: Long,
+)
+
 object AbiDecoder {
 
-    fun decodeLongVersion(hexString: String): Long {
+    fun decodeSingleLong(hexString: String): Long {
         val rawBytes = hexString.remove0x()
             .hexToByteArray()
 
-        val version = readInt64(rawBytes, 0)
+        val value = readUint256(rawBytes, 0).longValue()
 
-        return version
+        return value
+    }
+
+    fun decodeDoubleLong(hexString: String): Pair<Long, Long> {
+        val rawBytes = hexString.remove0x()
+            .hexToByteArray()
+
+        val first = readUint256(rawBytes, 0).longValue()
+        val second = readUint256(rawBytes, 32).longValue()
+
+        return first to second
+    }
+
+    fun decodeAssetOwnershipStatus(hexString: String): AssetOwnershipStatus {
+        val (status, lastSuccessDelta) = decodeDoubleLong(hexString)
+        return AssetOwnershipStatus(status, lastSuccessDelta)
+    }
+
+    fun decodeAppAndOwnershipVersion(hexString: String): AppAndOwnershipVersion {
+        val (versionCode, ownershipVersion) = decodeDoubleLong(hexString)
+        return AppAndOwnershipVersion(versionCode, ownershipVersion)
     }
 
     /**
@@ -142,11 +179,11 @@ object AbiDecoder {
      * Decodes the raw hex string for the AppOwnerPluginV1Version struct.
      *
      * struct AppOwnerPluginV1Version {
-     *     string domain;         // dynamic
-     *     bytes32[] fingerprints; // dynamic array of static type
-     *     bytes[] proofs;         // dynamic array of dynamic type
+     *     string domain;
+     *     bytes32[] fingerprints;
+     *     uint256 blockNumber;
      * }
-     * 0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000004b68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f416e6472657743687570696e2f45766d4163636f756e742f726566732f68656164732f6d6173746572000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000121f955dac405cba21bbc269a328164e033abfb2d93ea53417a458198f8ed5d8200000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000010003ec2c71a5fd2b2c7c52e57da1e3f8ad2e2d4ebc8a754726aa74075bd6932522e4eba8b762dcee3728368c3b02ab835a44627416e386f315ccfe2ea73b33849eaf6195f68e90b1ea9d176d0eea101997ecd5d839087f09d6c3226a4c8904b0b98e8d216a896e47527164032886dc389b6c499ba0747fd826043948ade0da0fcd878cf9a5cc616e0351abac94f5e8d014fb86f17133c703250e87ec9544b4bc1869b878b9f3c9976ba6694a2b3ee4576ea23c1fba9c7e7eceeafe84a5f61d36580b00e3a7ee94c9d673ad525ba308b64066853032487eba1e1ddfd18d461e37e675699ed9a5cc49337f052d953a16c2b6d1f8a2b70c15f9e8fa1e90c459120bea
+     *
      */
     fun decodeOwnershipInfo(hexString: String): AppOwnerPluginV1Version {
         val rawBytes = hexString.remove0x()
@@ -157,20 +194,45 @@ object AbiDecoder {
         // --- Head of the struct ---
         val domainPtrLoc = structStartOffset + 0
         val fingerprintsPtrLoc = structStartOffset + 32
-        val proofsPtrLoc = structStartOffset + 64
+        val blockNumberSlotLoc = structStartOffset + 64
 
         // --- Decode dynamic parts ---
         val domain = decodeDynamicString(rawBytes, domainPtrLoc, structStartOffset)
 
         // --- Decode `bytes32[] fingerprints` (dynamic array of static type) ---
         val fingerprints = decodeBytes32Array(rawBytes, fingerprintsPtrLoc, structStartOffset)
-
-        // --- Decode `bytes[] proofs` (dynamic array of dynamic type) ---
-        val proofs = decodeBytesArray(rawBytes, proofsPtrLoc, structStartOffset)
+        val blockNumber = readUint256(rawBytes, blockNumberSlotLoc).longValue()
 
         return AppOwnerPluginV1Version(
             domain = domain,
             fingerprints = fingerprints,
+            blockNumber = blockNumber
+        )
+    }
+    /**
+     * Decodes log topics and data for
+     * AppOwnerChanged(uint256 indexed version, bytes[] certs, bytes[] proofs).
+     *
+     * topics[1] holds the indexed `version` (topics[0] is the event signature).
+     * The data blob encodes `certs` and `proofs` in standard ABI-encoded format.
+     *
+     * @param topics Log topics array.
+     * @param dataHex Log data hex (0x-prefixed) for certs and proofs.
+     * @return Parsed event fields as [AppOwnershipProofsInfo].
+     * @throws IllegalArgumentException if topics/data are malformed.
+     */
+    fun decodeAppOwnerChanged(topics: List<String>, dataHex: String): AppOwnershipProofsInfo {
+        val versionTopic = topics.getOrNull(1)
+            ?: throw IllegalArgumentException("Missing indexed version topic")
+        val version = readUint256(versionTopic.remove0x().hexToByteArray(), 0).longValue()
+
+        val dataBytes = dataHex.remove0x().hexToByteArray()
+        val certs = decodeBytesArray(dataBytes, 0, 0)
+        val proofs = decodeBytesArray(dataBytes, 32, 0)
+
+        return AppOwnershipProofsInfo(
+            version = version,
+            certs = certs,
             proofs = proofs
         )
     }
@@ -200,14 +262,14 @@ object AbiDecoder {
         val versionCodeSlotLoc = structStartOffset + 96
         val checksumSlotLoc = structStartOffset + 128
 
-        val referenceId = decodeDynamicBytes(rawBytes, referenceIdPtrLoc, structStartOffset)
+        val referenceId = decodeDynamicBytes(rawBytes, referenceIdPtrLoc, structStartOffset).toUpper0xHex()
         val protocolId = readUint16(rawBytes, protocolIdSlotLoc)
         val versionName = decodeDynamicString(rawBytes, versionNamePtrLoc, structStartOffset)
         val versionCode = readUint256(rawBytes, versionCodeSlotLoc).longValue()
-        val checksum = readBytes32(rawBytes, checksumSlotLoc).toUpper0xHex()
+        val checksum = readBytes32(rawBytes, checksumSlotLoc).toLower0xHex()
 
         return AppBuild(
-            referenceId = referenceId.toUpper0xHex(),
+            referenceId = referenceId,
             protocolId = protocolId,
             versionName = versionName,
             versionCode = versionCode,

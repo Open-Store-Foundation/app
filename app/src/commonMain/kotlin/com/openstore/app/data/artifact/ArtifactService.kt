@@ -2,12 +2,13 @@ package com.openstore.app.data.artifact
 
 import com.openstore.app.core.net.json_rpc.util.apiBodyOrError
 import com.openstore.app.data.Artifact
+import com.openstore.app.data.TrackId
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.http.appendPathSegments
 
 interface ArtifactService {
-    suspend fun getArtifact(objectId: Long, trackId: Int): Result<Artifact>
+    suspend fun getArtifact(objectId: Long, trackId: TrackId = TrackId.RELEASE): Result<Artifact>
 }
 
 class ArtifactServiceDefault(
@@ -16,12 +17,12 @@ class ArtifactServiceDefault(
 ) : ArtifactService {
     override suspend fun getArtifact(
         objectId: Long,
-        trackId: Int
+        trackId: TrackId
     ): Result<Artifact> {
         return runCatching {
             val result = client.get(host) {
                 url {
-                    appendPathSegments("asset/$objectId/$trackId/artifact")
+                    appendPathSegments("asset/$objectId/${trackId.id}/artifact")
                 }
             }
 

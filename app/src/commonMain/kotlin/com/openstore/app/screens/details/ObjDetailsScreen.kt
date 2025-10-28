@@ -65,6 +65,7 @@ import com.openstore.app.Router
 import com.openstore.app.data.Artifact
 import com.openstore.app.data.Asset
 import com.openstore.app.installer.InstallationStatus
+import com.openstore.app.log.L
 import com.openstore.app.mvi.props.observeSafeState
 import com.openstore.app.screens.StoreInjector
 import com.openstore.app.screens.cells.assetVerificationTitle
@@ -158,35 +159,36 @@ fun ObjDetailsScreen(
                                 }
                             )
 
-                            isNotifyUpdate?.let { isNotifyUpdate ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = when (isNotifyUpdate) {
-                                                true -> "Mute updates"
-                                                false -> "Unmute updates"
-                                            }
-                                        )
-                                    },
-                                    leadingIcon = {
-                                        DefaultItemIcon(
-                                            vector = when (isNotifyUpdate) {
-                                                true -> Icons.Default.NotificationsOff
-                                                false -> Icons.Default.Notifications
-                                            }
-                                        )
-                                    },
-                                    onClick = {
-                                        isOpened = false
-                                        feature.sendAction(
-                                            ObjDetailsAction.SetNotification(
-                                                it.address,
-                                                !isNotifyUpdate
-                                            )
-                                        )
-                                    }
-                                )
-                            }
+                            // TODO v3 add notification feature
+//                            isNotifyUpdate?.let { isNotifyUpdate ->
+//                                DropdownMenuItem(
+//                                    text = {
+//                                        Text(
+//                                            text = when (isNotifyUpdate) {
+//                                                true -> "Mute updates"
+//                                                false -> "Unmute updates"
+//                                            }
+//                                        )
+//                                    },
+//                                    leadingIcon = {
+//                                        DefaultItemIcon(
+//                                            vector = when (isNotifyUpdate) {
+//                                                true -> Icons.Default.NotificationsOff
+//                                                false -> Icons.Default.Notifications
+//                                            }
+//                                        )
+//                                    },
+//                                    onClick = {
+//                                        isOpened = false
+//                                        feature.sendAction(
+//                                            ObjDetailsAction.SetNotification(
+//                                                it.address,
+//                                                !isNotifyUpdate
+//                                            )
+//                                        )
+//                                    }
+//                                )
+//                            }
 
                             DropdownMenuItem(
                                 text = { Text("Open explorer") },
@@ -644,18 +646,4 @@ fun AvoirAchievement(
             textAlign = TextAlign.Center,
         )
     }
-}
-
-
-@Composable
-fun ScreenshotPreviewPlaceholder(
-    width: Dp = 96.dp,
-    height: Dp = 150.dp
-) {
-    Box(
-        modifier = Modifier
-            .size(width, height)
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.secondary)
-    )
 }

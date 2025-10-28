@@ -140,6 +140,6 @@ class GreenfieldClientHttp(
     }
 
     private fun buildGfArtifactPath(packageName: String, artifact: Artifact): String {
-        return "open-store-external/${packageName.replace(".", "_")}/v/${artifact.versionName}/${artifact.versionCode}/${artifact.checksum}.apk"
+        return "open-store-external/${packageName.replace(".", "_")}/android/v/${artifact.versionName}/${artifact.versionCode}/${artifact.checksum}.apk"
     }
 }

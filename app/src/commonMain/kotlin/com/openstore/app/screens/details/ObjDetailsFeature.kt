@@ -13,7 +13,6 @@ import com.openstore.app.data.settings.SettingsRepo
 import com.openstore.app.data.sources.AppChainService
 import com.openstore.app.data.store.ObjectRepo
 import com.openstore.app.installer.InstallationEvent
-import com.openstore.app.installer.InstallationRequest
 import com.openstore.app.installer.InstallationStatus
 import com.openstore.app.log.L
 import com.openstore.app.mvi.MviFeature
@@ -85,12 +84,11 @@ class ObjDetailsFeature(
     private val requestRepo: InstallationRequestRepo,
 ) : MviFeature<ObjDetailsAction, ObjDetailsState, ObjDetailsViewState>(
     initState = ObjDetailsState(),
-    initAction = ObjDetailsAction.Refresh,
+    initAction = ObjDetailsAction.Refresh, // TODO Non-critical race with events
 ) {
 
     private val relay = MviRelay<ObjDetailsEvents>()
     val events = relay.events
-
 
     init {
         requestRepo.deleteEvents.onEach { event ->
@@ -186,8 +184,9 @@ class ObjDetailsFeature(
     }
 
     private suspend fun handleInstallationEvent(action: ObjDetailsAction.Install) {
-        val req = FetchingRequest(action.obj, action.artifact)
-        requestRepo.fetchInstallationRequest(req)
+        requestRepo.fetchInstallationRequest(
+            request = FetchingRequest(action.obj, action.artifact)
+        )
     }
 
     private fun reloadData() {
@@ -196,26 +195,26 @@ class ObjDetailsFeature(
 
              when (data) {
                 is ObjectId.Id -> {
-                    val obj = objRepo.findObject(data.id).getOrNull()
-                    val isNotifyUpdate = obj?.let { settingsRepo.isNotifyUpdate(it.address) }
-                    setState { copy(obj = obj, isNotifyUpdate = isNotifyUpdate, isLoading = false, isError = obj == null) }
+                    val asset = objRepo.findObject(data.id).getOrNull()
+                    val isNotifyUpdate = asset?.let { settingsRepo.isNotifyUpdate(it.address) }
+                    setState { copy(obj = asset, isNotifyUpdate = isNotifyUpdate, isLoading = false, isError = asset == null) }
 
-                    if (obj == null) {
+                    if (asset == null) {
                         return@launch
                     }
 
-                    reloadStatus(obj)
+                    reloadStatus(asset)
                 }
                 is ObjectId.Address -> {
-                    val isNotifyUpdate = settingsRepo.isNotifyUpdate(data.address)
-                    val data = appChainService.collectObjectData(data.address).getOrNull()
-                    setState { copy(obj = data?.obj, isLoading = false, isNotifyUpdate = isNotifyUpdate, isError = data == null) }
+                    val asset = appChainService.findAssetAndBuildData(data.address).getOrNull()
+                    val isNotifyUpdate = asset?.let { settingsRepo.isNotifyUpdate(it.obj.address) }
+                    setState { copy(obj = asset?.obj, isLoading = false, isNotifyUpdate = isNotifyUpdate, isError = asset == null) }
 
-                    if (data == null) {
+                    if (asset == null) {
                         return@launch
                     }
 
-                    reloadStatus(data.obj, data.artifact)
+                    reloadStatus(asset.obj, asset.artifact)
                 }
             }
         }
@@ -223,17 +222,13 @@ class ObjDetailsFeature(
 
     private fun reloadStatus(obj: Asset, artifact: Artifact? = null) {
         stateScope.launch {
-            setState { copy(artifact = DataState.loading()) }
-
             val state = obtainState()
-            val stateArtifact = state.artifact.data
-            val artifact = if (stateArtifact == null) {
-                val artifact = when (data) {
-                    is ObjectId.Id -> artifactService.getArtifact(
-                        objectId = data.id,
-                        trackId = TrackId.RELEASE.id,
-                    ).getOrNull()
 
+            val artifact = state.artifact.data ?: run {
+                setState { copy(artifact = DataState.loading()) }
+
+                val artifact = when (data) {
+                    is ObjectId.Id -> artifactService.getArtifact(data.id).getOrNull()
                     is ObjectId.Address -> artifact
                 }
 
@@ -243,22 +238,13 @@ class ObjDetailsFeature(
                 }
 
                 artifact
-            } else {
-                stateArtifact
             }
 
-            val status = runCatching {
-                requestRepo.getInstallationStatus(
-                    address = obj.address,
-                    packageName = obj.packageName,
-                    version = artifact.versionCode
-                )
-            }.getOrNull()
-
-            if (status == null) {
-                setState { copy(artifact = DataState.error(), isLoading = false) }
-                return@launch
-            }
+            val status = requestRepo.getInstallationStatus(
+                address = obj.address,
+                packageName = obj.packageName,
+                version = artifact.versionCode
+            )
 
             setState { copy(artifact = DataState.data(artifact), status = status, isLoading = false) }
         }

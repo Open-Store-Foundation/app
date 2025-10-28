@@ -82,7 +82,7 @@ fun AvoirAppBar(
         title = {
             Row(
                 modifier = Modifier
-                    .fillMaxHeight()
+//                    .fillMaxHeight()
                     .wrapContentWidth(unbounded = true),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

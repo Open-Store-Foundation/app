@@ -106,7 +106,7 @@ class ReportSubmitFeature(
                     setState { copy(isLoading = true) }
                     reportService.createReport(
                         NewReport(
-                            objectAddress = objAddress,
+                            assetAddress = objAddress,
                             categoryId = categoryId.id,
                             subcategoryId = subcategoryId?.id,
                             email = action.email,

@@ -4,15 +4,7 @@ import java.io.File
 import java.io.FileInputStream
 
 inline fun File.readInto(crossinline applier: (ByteArray, Int) -> Unit) {
-    val buffer = ByteArray(4 * 1024)
-
-//    this.readChannel().readBuffer().use { channel ->
-//        var bytesRead: Int
-//        while (channel.readAvailable(buffer).also { bytesRead = it } != -1) {
-//            applier(buffer, bytesRead)
-//        }
-//    }
-
+    val buffer = ByteArray(16 * 1024)
     FileInputStream(this).use { srcStream ->
         var bytesRead: Int
 
@@ -21,3 +13,11 @@ inline fun File.readInto(crossinline applier: (ByteArray, Int) -> Unit) {
         }
     }
 }
+
+
+//    this.readChannel().readBuffer().use { channel ->
+//        var bytesRead: Int
+//        while (channel.readAvailable(buffer).also { bytesRead = it } != -1) {
+//            applier(buffer, bytesRead)
+//        }
+//    }

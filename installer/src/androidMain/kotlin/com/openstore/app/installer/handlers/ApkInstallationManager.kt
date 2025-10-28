@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.Build
+import com.openstore.app.installer.ArtifactValidationStatus
+import com.openstore.app.installer.InstallationMetaRepo
 import com.openstore.app.installer.InstallationReceiver
 import com.openstore.app.installer.InstallationRequest
 import com.openstore.app.installer.InstallationSessionStorage
@@ -13,28 +15,31 @@ import com.openstore.app.installer.utils.readInto
 import com.openstore.app.log.L
 import java.io.File
 
+// TODO throw to reason
 class ApkInstallationManager(
-    private val context: Context
+    private val context: Context,
+    private val metaRepo: InstallationMetaRepo
 ) {
 
-    suspend fun install(request: InstallationRequest): Result<Unit> {
+    fun install(request: InstallationRequest): Result<Unit> {
         return runCatching {
             val srcFile = ApkFileDestination.getSrcFor(request.address)
+            val validationStatus = metaRepo.validateArtifact(srcFile.canonicalPath, request)
+            if (validationStatus != ArtifactValidationStatus.Valid) {
+                throw IllegalStateException("Artifact is not valid: $validationStatus")
+            }
+
             internalInstall(srcFile, request)
         }.onFailure { error ->
             L.e("Installation failed: ${request.name}", error)
         }
     }
 
-    private suspend fun internalInstall(srcFile: File, request: InstallationRequest) {
+    private fun internalInstall(srcFile: File, request: InstallationRequest) {
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
             setAppPackageName(request.packageName)
             setAppLabel(request.name)
             setSize(srcFile.length())
-        }
-
-        if (!ApkFileDestination.checkHash(srcFile, request.checksum)) {
-            throw IllegalStateException("File checksum error")
         }
 
         val installer = context.packageManager.packageInstaller

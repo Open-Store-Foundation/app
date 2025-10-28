@@ -9,8 +9,12 @@ import android.os.Build
 import com.appmattus.crypto.Algorithm
 import com.openstore.app.core.common.toFingerHex
 import com.openstore.app.core.os.Android
+import com.openstore.app.installer.utils.ApkFileDestination
 import com.openstore.app.log.L
 import com.openstore.app.store.common.store.KeyValueStorage
+import java.io.File
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 
 class InstallationMetaRepoStorage(
     private val store: KeyValueStorage,
@@ -109,34 +113,97 @@ class ApkInstallationMetaRepo(
         return getAppsInstalledBy(context.packageName)
     }
 
-    // TODO for new versions and for new apps
-    fun checkSignatures(packageName: String, sha256: Set<String>): Boolean {
-        val info = getPackageInfo(packageName)
-            ?: return false
+    override fun validateArtifact(artifactFile: String, request: InstallationRequest): ArtifactValidationStatus {
+        val file = File(artifactFile)
+        L.d("Validating artifact: file=$artifactFile, package=${request.packageName}, version=${request.version}, versionName=${request.versionName}, checksum=${request.checksum}, fingerprints=${request.contractFingerprints.size}")
+        if (!file.exists()) {
+            L.e("Artifact file not found: $artifactFile")
+            return ArtifactValidationStatus.FileNotFound
+        }
 
-        val signatures = getSignatures(info)
+        // TODO
+        if (!ApkFileDestination.checkHash(file, request.checksum)) {
+            L.e("Invalid checksum for artifact: expected=${request.checksum}")
+            return ArtifactValidationStatus.InvalidChecksum
+        }
 
-        // check versions
-        // parse apk / check that apk is apk / check hash / check signatures
+        val contractFingerprints = request.contractFingerprints.toSet()
+        L.d("Prepared contract fingerprints: count=${contractFingerprints.size}")
+        val newInfo = getPackageInfo(file)
+            ?: run {
+                L.e("Package info for artifact not found")
+                return ArtifactValidationStatus.PackageInfoNotFound
+            }
 
-        return checkAppSignatures(signatures, sha256)
+        if (newInfo.packageName != request.packageName) {
+            L.e("Package name mismatch: expected=${request.packageName}, actual=${newInfo.packageName}")
+            return ArtifactValidationStatus.PackageNameMismatch
+        }
+
+        if (newInfo.versionCodeCompat != request.version) {
+            L.e("Version code mismatch: expected=${request.version}, actual=${newInfo.versionCodeCompat}")
+            return ArtifactValidationStatus.VersionCodeMismatch
+        }
+
+        if (newInfo.versionName != null && request.versionName != null) {
+            if (newInfo.versionName != request.versionName) {
+                L.e("Version name mismatch: expected=${request.versionName}, actual=${newInfo.versionName}")
+                return ArtifactValidationStatus.VersionNameMismatch
+            }
+        }
+
+        val isArtifactFingerValid = checkArtifactFingerprints(newInfo, contractFingerprints)
+        if (!isArtifactFingerValid) {
+            L.e("Artifact fingerprint mismatch for ${newInfo.packageName}")
+            return ArtifactValidationStatus.FingerprintMismatch
+        }
+        L.d("Artifact fingerprints validated for ${newInfo.packageName}")
+
+        val oldInfo = getPackageInfo(request.packageName)
+        if (oldInfo == null) {
+            L.e("No installed package found for ${request.packageName}; skipping update signature check")
+            return ArtifactValidationStatus.Valid
+        }
+
+        val isUpdateValid = checkUpdate(oldInfo, contractFingerprints)
+        if (!isUpdateValid) {
+            L.e("Update signature mismatch for installed package ${oldInfo.packageName}")
+            return ArtifactValidationStatus.UpdateSignatureMismatch
+        }
+
+        L.d("Artifact validation succeeded for ${newInfo.packageName}")
+        return ArtifactValidationStatus.Valid
     }
 
-    private fun checkAppSignatures(signatures: List<Signature>, sha256: Set<String>): Boolean {
+    private fun checkArtifactFingerprints(
+        packageInfo: PackageInfo,
+        fingerprints: Set<String>,
+    ): Boolean {
+        val fileFingerprints = getSignatureFingerprints(packageInfo)
+
+        if (fileFingerprints.isEmpty()) {
+            return false
+        }
+
+        if (!fingerprints.containsAll(fileFingerprints)) {
+            return false
+        }
+
+        return true
+    }
+
+    private fun checkUpdate(packageInfo: PackageInfo, contractFingerprints: Set<String>): Boolean {
+        val existingSignatures = getSignatureFingerprints(packageInfo)
+        return checkAppSignatures(existingSignatures, contractFingerprints)
+    }
+
+    private fun checkAppSignatures(signatures: Set<String>, contractFingerprints: Set<String>): Boolean {
         try {
             if (signatures.isEmpty()) {
                 return false
             }
 
-            val hasher = Algorithm.SHA_256.createDigest()
-            val signFingers = signatures.map {
-                hasher.digest(it.toByteArray())
-                    .toFingerHex()
-            }
-
-            return signFingers.all {
-                sha256.contains(it)
-            }
+            return signatures.containsAll(contractFingerprints)
         } catch (e: Throwable) {
             L.e("Error during hash calculation", e)
         }
@@ -188,6 +255,27 @@ class ApkInstallationMetaRepo(
             return applicationInfo?.metaData?.getString(APP_METADATA_ADDRESS)
         }
 
+    private val PackageInfo.versionCodeCompat: Long
+        get() {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                longVersionCode
+            } else {
+                versionCode.toLong()
+            }
+        }
+
+    private fun getSignatureFingerprints(packageInfo: PackageInfo): Set<String> {
+        val signatures = getSignatures(packageInfo)
+        val hasher = Algorithm.SHA_256.createDigest()
+
+        val certs = signatures.map {
+            hasher.digest(it.toByteArray())
+                .toFingerHex()
+        }
+
+        return certs.toSet()
+    }
+
     private fun getSignatures(info: PackageInfo): List<Signature> {
         val signatures = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -232,6 +320,33 @@ class ApkInstallationMetaRepo(
             @Suppress("DEPRECATION")
             packageManager.getInstallerPackageName(packageName)
         }
+    }
+
+    private fun getX509Certs(signatures: List<Signature>): List<X509Certificate> {
+        val certFactory = CertificateFactory.getInstance("X.509")
+
+        return try {
+            signatures.map { signature ->
+                signature.toByteArray().inputStream().use {
+                    certFactory.generateCertificate(it) as X509Certificate
+                }
+            }
+        } catch (e: Throwable) {
+            L.e("Can't decode certificate for certificate", e)
+            return emptyList()
+        }
+    }
+
+
+    private fun getPackageInfo(file: File): PackageInfo? {
+        val info = try {
+            packageManager.getPackageArchiveInfo(file.canonicalPath, defaultFlags())
+        } catch (e: Throwable) {
+            L.e("Can't get package info", e)
+            return null
+        }
+
+        return info
     }
 
     private fun getPackageInfo(packageName: String): PackageInfo? {

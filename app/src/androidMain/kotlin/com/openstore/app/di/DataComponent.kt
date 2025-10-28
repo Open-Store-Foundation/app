@@ -7,8 +7,10 @@ import com.openstore.app.data.artifact.ArtifactService
 import com.openstore.app.data.artifact.ArtifactServiceDefault
 import com.openstore.app.data.db.ResponseRepoKeyValue
 import com.openstore.app.data.db.ResponseRepo
+import com.openstore.app.data.installation.InstallationOnChainValidator
 import com.openstore.app.data.installation.InstallationRepoDefault
 import com.openstore.app.data.installation.InstallationRequestRepo
+import com.openstore.app.data.installation.InstallationValidator
 import com.openstore.app.data.profile.ProfileRepo
 import com.openstore.app.data.report.ReportRepo
 import com.openstore.app.data.report.ReportRepoDefault
@@ -38,6 +40,7 @@ import com.openstore.app.installer.InstallationEventProducer
 import com.openstore.app.installer.InstallationMetaRepoStorage
 import com.openstore.app.installer.InstallationRequestQueue
 import com.openstore.app.installer.MutableInstallationMetaRepo
+import foundation.openstore.core.crypto.NativeSignatureVerifier
 import foundation.openstore.kitten.api.Component
 import org.openwallet.kitten.core.depLazy
 
@@ -56,6 +59,7 @@ interface DataComponent : Component {
 
     val appUpdateInteractor: AppUpdateInteractor
     val installationRequestRepo: InstallationRequestRepo
+    val installationMetaRepo: MutableInstallationMetaRepo
     val installationQueue: InstallationRequestQueue
     val installationProvider: InstallationEventProducer
 
@@ -72,9 +76,11 @@ interface DataComponent : Component {
 
 class DataComponentDefault(
     private val platformId: PlatformId,
+    private val caip2Chain: String,
     private val storeAddress: String,
+    private val oracleAddress: String,
     private val netComponent: NetComponent,
-    private val storage: StorageComponent,
+    private val storageComponent: StorageComponent,
 ) : DataComponent {
 
     companion object {
@@ -110,11 +116,11 @@ class DataComponentDefault(
         )
     }
 
-    private val installationMetaRepoStorage: MutableInstallationMetaRepo by depLazy {
-        ApkInstallationMetaRepo(
-            InstallationMetaRepoStorage(
-                storage.keyValueFactory.create(APP_META_STORAGE)
-            )
+    private val installationValidator: InstallationValidator by depLazy {
+        InstallationOnChainValidator(
+            chainCaip2 = caip2Chain,
+            verifier = NativeSignatureVerifier(),
+            appChainService = appChainService
         )
     }
 
@@ -122,7 +128,8 @@ class DataComponentDefault(
         InstallationRepoDefault(
             objectRepo = objRepo,
             appChainService = appChainService,
-            installationMetaRepo = installationMetaRepoStorage
+            installationValidator = installationValidator,
+            installationMetaRepo = installationMetaRepo
         )
     }
 
@@ -136,6 +143,14 @@ class DataComponentDefault(
     //
     // Public
     //
+    override val installationMetaRepo: MutableInstallationMetaRepo by depLazy {
+        ApkInstallationMetaRepo(
+            InstallationMetaRepoStorage(
+                storageComponent.keyValueFactory.create(APP_META_STORAGE)
+            )
+        )
+    }
+
     override val objectService: AssetService by depLazy {
         AssetServiceDefault(
             platformId,
@@ -148,19 +163,19 @@ class DataComponentDefault(
     override val objRepo: ObjectRepo by depLazy {
         ObjectRepoDefault(
             objectService = objectService,
-            objectDao = storage.appDatabase.getObjectDao()
+            objectDao = storageComponent.appDatabase.getObjectDao()
         )
     }
 
     override val appUpdateInteractor: AppUpdateInteractor by depLazy {
         AppUpdateInteractorDefault(
             appChainService = appChainService,
-            installationRepo = installationMetaRepoStorage
+            installationRepo = installationMetaRepo
         )
     }
 
     override val settingsRepo: SettingsRepo by depLazy {
-        SettingsRepo(storage.keyValueFactory.create(SETTINGS_STORAGE))
+        SettingsRepo(storageComponent.keyValueFactory.create(SETTINGS_STORAGE))
     }
 
     override val artifactRepo: ArtifactRepo by depLazy {
@@ -175,7 +190,7 @@ class DataComponentDefault(
     }
 
     override val appChainService: AppChainService by depLazy {
-        AppChainServiceEvm(storeAddress, nodeJsonRpc, greenfieldClient)
+        AppChainServiceEvm(storeAddress, oracleAddress,nodeJsonRpc, greenfieldClient)
     }
 
     override val profileRepo: ProfileRepo by depLazy {
@@ -215,7 +230,7 @@ class DataComponentDefault(
 
     override val responseRepo: ResponseRepo by depLazy {
         ResponseRepoKeyValue(
-            cache = storage.keyValueFactory.create(REQUESTS_STORAGE),
+            cache = storageComponent.keyValueFactory.create(REQUESTS_STORAGE),
             json = netComponent.json
         )
     }
@@ -232,7 +247,7 @@ class DataComponentDefault(
     override val storeInteractor: StoreInteractor by depLazy {
         StoreInteractorDefault(
             storeService = storeService,
-            objDao = storage.appDatabase.getObjectDao()
+            objDao = storageComponent.appDatabase.getObjectDao()
         )
     }
 

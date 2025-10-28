@@ -13,6 +13,9 @@ import com.openstore.app.log.utils.LogArchiver
 import com.openstore.app.log.utils.LogTracer
 import com.openstore.app.mvi.Mvi
 import com.openstore.app.di.OpenStoreInjection
+import com.openstore.app.installer.utils.ApkFileDestination
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 class AppDelegate : Application() {

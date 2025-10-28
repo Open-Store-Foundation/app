@@ -1,5 +1,18 @@
 package com.openstore.app.installer
 
+enum class FetchingFailedReason {
+    NetworkError,
+    BuildInfoInvalid,
+    OwnershipVersionNotFound,
+    OwnershipVersionIsNotValid,
+    IncorrectChecksum,
+    IncorrectDomain,
+    CertificateIsNotValid,
+    ProofIsNotFound,
+    ProofIsNotValid,
+    SourcesNotFound,
+}
+
 sealed class InstallationEvent(
     val address: String
 ) {
@@ -8,7 +21,8 @@ sealed class InstallationEvent(
     ) : InstallationEvent(address)
 
     class FetchingFailed(
-        address: String
+        address: String,
+        val reason: FetchingFailedReason,
     ) : InstallationEvent(address)
 
     data class Enqueued(
