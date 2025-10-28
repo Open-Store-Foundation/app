@@ -74,11 +74,6 @@ class MainActivity : ComponentActivity() {
             OnceOnly {
                 setAppTheme(viewModel.appTheme() ?: systemTheme)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    packageManager.getPackageInfo(packageName, 0).longVersionCode
-                } else {
-
-                }
                 scope.launch {
                     if (notificationState != null && notificationState.shouldRequest) {
                         notificationState.launchPermissionRequest()

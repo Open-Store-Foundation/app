@@ -1,5 +1,17 @@
 package com.openstore.app.installer
 
+enum class ArtifactValidationStatus {
+    Valid,
+    FileNotFound,
+    InvalidChecksum,
+    PackageInfoNotFound,
+    PackageNameMismatch,
+    VersionCodeMismatch,
+    VersionNameMismatch,
+    FingerprintMismatch,
+    UpdateSignatureMismatch
+}
+
 enum class InstallationStatus {
     Uninstalled,
     InstalledAnother,
@@ -33,16 +45,20 @@ data class InstalledObjectMeta(
     val packageName: String,
 )
 
-interface InstallationMetaRepo {
-    suspend fun canRequestPackageInstalls(): Boolean
+interface InstallationStatusRepo {
     suspend fun getInstallationStatus(
         address: String,
         packageName: String,
         version: Long
     ): InstallationStatus
+}
+
+interface InstallationMetaRepo : InstallationStatusRepo {
+    suspend fun canRequestPackageInstalls(): Boolean
 
     suspend fun getInstalledObjectsMetas(): List<InstalledObjectMeta>
     suspend fun getInstalledObjectsMeta(packageName: String): InstalledObjectMeta?
+    fun validateArtifact(artifactFile: String, request: InstallationRequest): ArtifactValidationStatus
 }
 
 interface MutableInstallationMetaRepo : InstallationMetaRepo {

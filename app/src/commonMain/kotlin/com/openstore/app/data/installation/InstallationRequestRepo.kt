@@ -12,6 +12,7 @@ import com.openstore.app.installer.InstallationMetaRepo
 import com.openstore.app.installer.InstallationRequest
 import com.openstore.app.installer.InstallationRequestQueue
 import com.openstore.app.installer.InstallationStatus
+import com.openstore.app.installer.InstallationStatusRepo
 import com.openstore.app.installer.InstalledObjectMeta
 import com.openstore.app.installer.MutableInstallationMetaRepo
 import com.openstore.app.installer.isSameAddress
@@ -50,7 +51,7 @@ sealed interface DeleteEvent {
     ) : DeleteEvent
 }
 
-interface InstallationRequestRepo : InstallationEventProducer, InstallationMetaRepo {
+interface InstallationRequestRepo : InstallationEventProducer, InstallationStatusRepo {
     val platformInstallerActions: Flow<InstallerAction>
     val installationEvents: Flow<InstallationEvent>
     val deleteEvents: Flow<DeleteEvent>
@@ -68,6 +69,7 @@ interface InstallationRequestRepo : InstallationEventProducer, InstallationMetaR
 class InstallationRepoDefault(
     private val objectRepo: ObjectRepo,
     private val appChainService: AppChainService,
+    private val installationValidator: InstallationValidator,
     private val installationMetaRepo: MutableInstallationMetaRepo,
 ) : InstallationRequestRepo, InstallationRequestQueue {
 
@@ -127,7 +129,7 @@ class InstallationRepoDefault(
     override suspend fun fetchInstallationRequest(request: FetchingRequest) {
         val (asset: Asset, artifact: Artifact) = request
 
-        if (!canRequestPackageInstalls()) {
+        if (!installationMetaRepo.canRequestPackageInstalls()) {
             L.w("Can't request package installs")
             setupInstaller()
             return
@@ -139,19 +141,35 @@ class InstallationRepoDefault(
             installationRelay.emit(InstallationEvent.Fetching(request.asset.address))
         }
 
-        val sources = runCatching {
-            val result = appChainService.getArtifactSources(asset.address, artifact)
+        val validationResult = runCatching {
+            val result = installationValidator.validate(request)
 
-            result.ifEmpty {
-                L.e("No c_sources not found for ${artifact.refId}")
-                appChainService.getArtifactLink(asset, artifact)
-                    ?.let { listOf(it) }
+            if (result !is InstallationValidationResult.Data) {
+                return@runCatching null
             }
+
+            result
+        }.onFailure(L::e).getOrNull()
+
+        if (validationResult == null) {
+            L.d("Asset metadata is not valid ${artifact.refId}")
+            installationRelay.emit(InstallationEvent.FetchingFailed(request.asset.address)) // TODO
+            return
+        }
+
+        val sources = runCatching {
+            // Checking sources
+            appChainService.getArtifactSources(asset.address, artifact)
+                .ifEmpty {
+                    L.e("No c_sources not found for ${artifact.refId}")
+                    appChainService.getArtifactLink(asset, artifact)
+                        ?.let { listOf(it) }
+                }
         }.onFailure(L::e).getOrNull()
 
         if (sources == null || sources.isEmpty()) {
             L.d("No d_sources found for ${artifact.refId}")
-            installationRelay.emit(InstallationEvent.FetchingFailed(request.asset.address))
+            installationRelay.emit(InstallationEvent.FetchingFailed(request.asset.address)) // TODO
             return
         }
 
@@ -162,9 +180,11 @@ class InstallationRepoDefault(
             name = asset.name,
             packageName = asset.packageName,
             version = artifact.versionCode,
-            artifactUrls = sources,
+            versionName = artifact.versionName,
             size = artifact.size,
             checksum = artifact.checksum,
+            artifactUrls = sources,
+            contractFingerprints = validationResult.fingerprints
         )
 
         enqueueRequest(info)
@@ -177,10 +197,6 @@ class InstallationRepoDefault(
                     .getOrNull()
             }
             .map { asset -> InstalledAsset(asset) }
-    }
-
-    override suspend fun getInstalledObjectsMetas(): List<InstalledObjectMeta> {
-        return installationMetaRepo.getInstalledObjectsMetas()
     }
 
     override suspend fun getInstallationStatus(
@@ -223,14 +239,6 @@ class InstallationRepoDefault(
     //
     // Pre Install
     //
-    override suspend fun canRequestPackageInstalls(): Boolean {
-        return installationMetaRepo.canRequestPackageInstalls()
-    }
-
-    override suspend fun getInstalledObjectsMeta(packageName: String): InstalledObjectMeta? {
-        return installationMetaRepo.getInstalledObjectsMeta(packageName)
-    }
-
     override suspend fun setupInstaller() {
         platformInstallerRelay.emit(InstallerAction.InstallerSetup)
     }

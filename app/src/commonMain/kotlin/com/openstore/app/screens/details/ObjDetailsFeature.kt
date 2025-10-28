@@ -13,7 +13,6 @@ import com.openstore.app.data.settings.SettingsRepo
 import com.openstore.app.data.sources.AppChainService
 import com.openstore.app.data.store.ObjectRepo
 import com.openstore.app.installer.InstallationEvent
-import com.openstore.app.installer.InstallationRequest
 import com.openstore.app.installer.InstallationStatus
 import com.openstore.app.log.L
 import com.openstore.app.mvi.MviFeature
@@ -85,12 +84,11 @@ class ObjDetailsFeature(
     private val requestRepo: InstallationRequestRepo,
 ) : MviFeature<ObjDetailsAction, ObjDetailsState, ObjDetailsViewState>(
     initState = ObjDetailsState(),
-    initAction = ObjDetailsAction.Refresh,
+    initAction = ObjDetailsAction.Refresh, // TODO Race with events
 ) {
 
     private val relay = MviRelay<ObjDetailsEvents>()
     val events = relay.events
-
 
     init {
         requestRepo.deleteEvents.onEach { event ->
@@ -186,8 +184,9 @@ class ObjDetailsFeature(
     }
 
     private suspend fun handleInstallationEvent(action: ObjDetailsAction.Install) {
-        val req = FetchingRequest(action.obj, action.artifact)
-        requestRepo.fetchInstallationRequest(req)
+        requestRepo.fetchInstallationRequest(
+            request = FetchingRequest(action.obj, action.artifact)
+        )
     }
 
     private fun reloadData() {
@@ -208,7 +207,7 @@ class ObjDetailsFeature(
                 }
                 is ObjectId.Address -> {
                     val isNotifyUpdate = settingsRepo.isNotifyUpdate(data.address)
-                    val data = appChainService.collectObjectData(data.address).getOrNull()
+                    val data = appChainService.findAssetAndBuildData(data.address).getOrNull()
                     setState { copy(obj = data?.obj, isLoading = false, isNotifyUpdate = isNotifyUpdate, isError = data == null) }
 
                     if (data == null) {

@@ -72,13 +72,20 @@ class OpenStoreComponentProvider(
 
     val dataCmp: DataComponent
         get() = singleOwner {
-            DataComponentDefault( PlatformId.ANDROID, AppConfig.Env.StoreAddress, netCmp, mdlCmp)
+            DataComponentDefault(
+                platformId = PlatformId.ANDROID,
+                caip2Chain = AppConfig.Env.Caip2,
+                storeAddress = AppConfig.Env.StoreAddress,
+                oracleAddress = AppConfig.Env.OracleAddress,
+                netComponent = netCmp,
+                storageComponent = mdlCmp
+            )
         }
 
     val appCmp: AppComponent by depLazy {
         object : AppComponent {
             private val apkInstallationManager by depLazy {
-                ApkInstallationManager(app)
+                ApkInstallationManager(app, metaRepo = dataCmp.installationMetaRepo)
             }
 
             override val installerController: ServiceController by depLazy {

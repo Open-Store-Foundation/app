@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "26a92e9382960c53411c7ecba62504c6",
+    "identityHash": "6f522f10065ba01c5a9862be6d3d882a",
     "entities": [
       {
         "tableName": "object",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `address` TEXT NOT NULL, `website` TEXT, `logo` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `platformId` INTEGER NOT NULL, `typeId` INTEGER NOT NULL, `isOsVerified` INTEGER NOT NULL, `rating` REAL NOT NULL, `price` INTEGER NOT NULL, `downloads` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `isHidden` INTEGER, `isOracleVerified` INTEGER, `isBuildVerified` INTEGER, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `address` TEXT NOT NULL, `website` TEXT, `logo` TEXT, `description` TEXT, `categoryId` INTEGER NOT NULL, `platformId` INTEGER NOT NULL, `typeId` INTEGER NOT NULL, `isOsVerified` INTEGER NOT NULL, `rating` REAL NOT NULL, `price` INTEGER NOT NULL, `downloads` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `isHidden` INTEGER NOT NULL, `isOracleVerified` INTEGER NOT NULL, `isBuildVerified` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -98,17 +98,20 @@
           {
             "fieldPath": "isHidden",
             "columnName": "isHidden",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "isOracleVerified",
             "columnName": "isOracleVerified",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "isBuildVerified",
             "columnName": "isBuildVerified",
-            "affinity": "INTEGER"
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -198,7 +201,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '26a92e9382960c53411c7ecba62504c6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6f522f10065ba01c5a9862be6d3d882a')"
     ]
   }
 }

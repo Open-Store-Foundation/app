@@ -85,9 +85,9 @@ data class Asset(
     val createdAt: Long = Time.nowMs(),
 
     // Rich
-    val isHidden: Boolean?,
-    val isOracleVerified: Boolean?,
-    val isBuildVerified: Boolean?,
+    val isHidden: Boolean = false,
+    val isOracleVerified: Boolean = true,
+    val isBuildVerified: Boolean = true,
 ) {
     val isAttached get() = id >= 0
 
@@ -134,7 +134,7 @@ data class Asset(
 @Serializable
 data class Review(
     val id: Long,
-    val objectId: Long,
+    val assetId: Long,
     val userId: String,
     val rating: Int,
     val text: String?
@@ -142,15 +142,15 @@ data class Review(
 
 @Serializable
 data class NewReview(
-    val objectId: Long, 
-    val userId: String, 
+    val assetId: Long,
+    val userId: String,
     val rating: Int,
     val text: String? 
 )
 
 @Serializable
 data class NewReport(
-    val objectAddress: String,
+    val assetAddress: String,
     val categoryId: Int,
     val subcategoryId: Int?,
     val email: String,
@@ -195,7 +195,7 @@ data class Achievement(
     val id: Int,
     val name: String,
     val value: String?, 
-    val objectId: Long 
+    val assetId: Long
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -234,14 +234,14 @@ data class Feed(
         @Serializable
         @SerialName("banner")
         data class Banner(
-            val objects: List<Asset>,
+            val assets: List<Asset>,
             val covers: List<String>, // == objects.size
         ) : Section()
 
         @Serializable
         @SerialName("h_list")
         data class HList(
-            val objects: List<Asset>,
+            val assets: List<Asset>,
             val covers: List<String>, // == objects.size
             val title: TitleType? = null,
         ) : Section()
@@ -249,7 +249,7 @@ data class Feed(
         @Serializable
         @SerialName("v_list")
         data class VList(
-            val objects: List<Asset>,
+            val assets: List<Asset>,
             val title: TitleType? = null,
         ) : Section()
 

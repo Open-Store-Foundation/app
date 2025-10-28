@@ -50,9 +50,9 @@ class StoreInteractorDefault(
                     result.add(FeedCell.Header(it.title))
                 }
                 is Feed.Section.Banner -> {
-                    objs.addAll(it.objects)
+                    objs.addAll(it.assets)
 
-                    val covers = it.objects.zip(it.covers)
+                    val covers = it.assets.zip(it.covers)
                         .map { (obj, cover) -> FeedCell.CoveredObj(obj, cover) }
 
                     result.add(FeedCell.Banner(covers))
@@ -66,11 +66,11 @@ class StoreInteractorDefault(
                         result.add(FeedCell.Header(it.title))
                     }
 
-                    val covers = it.objects.zip(it.covers)
+                    val covers = it.assets.zip(it.covers)
                         .map { (obj, cover) -> FeedCell.CoveredObj(obj, cover) }
 
                     result.add(FeedCell.Carousel(covers))
-                    objs.addAll(it.objects)
+                    objs.addAll(it.assets)
                 }
                 is Feed.Section.Categories -> {
                     if (it.title != null) {
@@ -86,11 +86,11 @@ class StoreInteractorDefault(
                         result.add(FeedCell.Header(it.title))
                     }
 
-                    for (obj in it.objects) {
+                    for (obj in it.assets) {
                         result.add(FeedCell.Obj(obj))
                     }
 
-                    objs.addAll(it.objects)
+                    objs.addAll(it.assets)
                 }
             }
         }

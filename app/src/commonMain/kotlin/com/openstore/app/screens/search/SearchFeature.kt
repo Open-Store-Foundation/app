@@ -13,7 +13,6 @@ import com.openstore.app.paging.PagingLoader
 import com.openstore.app.paging.PagingResult
 import com.openstore.app.paging.PagingStage
 import com.openstore.app.paging.PagingState
-import com.openstore.app.data.ObjTypeId
 import com.openstore.app.data.Asset
 import com.openstore.app.data.sources.AppChainService
 import com.openstore.app.data.store.ObjectRepo
@@ -128,7 +127,7 @@ class SearchPagingLoader(
     ): PagingResult<Int, SearchCell> {
         try {
             if (query.isEvmAddress()) {
-                val obj = appChainService.findObject(query).getOrNull()
+                val obj = appChainService.findAsset(query).getOrNull()
                     ?.let { listOf(SearchCell.Obj(it)) }
                     ?: emptyList()
 

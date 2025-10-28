@@ -8,8 +8,10 @@ data class InstallationRequest(
     val address: String,
     val name: String,
     val version: Long,
+    val versionName: String?,
     val packageName: String,
     val artifactUrls: List<String>,
+    val contractFingerprints: List<String>,
     val size: Long,
     val checksum: String,
 )

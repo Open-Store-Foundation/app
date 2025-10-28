@@ -72,6 +72,7 @@ kotlin {
             implementation(projects.installer)
             implementation(projects.core.strings)
             implementation(projects.core.log)
+            implementation(projects.core.crypto)
             implementation(projects.core.mvi)
             implementation(projects.core.async)
             implementation(projects.core.net.core)
@@ -172,8 +173,8 @@ val props = Properties().apply {
 
 android {
     defaultConfig {
-        val _versionCode = rootProject.property("versionCode")?.toString()?.toInt() ?: 1000000000
-        val _versionName = rootProject.property("versionName")?.toString() ?: "0.1"
+        val _versionCode = rootProject.findProperty("versionCode")?.toString()?.toInt() ?: 1000000000
+        val _versionName = rootProject.findProperty("versionName")?.toString() ?: "0.1"
 
         println("Actual ANDROID app version - $_versionName ($_versionCode)")
 

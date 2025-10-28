@@ -1,5 +1,7 @@
 package com.openstore.app.installer
 
+sealed interface FetchingFailedReason // TODO
+
 sealed class InstallationEvent(
     val address: String
 ) {

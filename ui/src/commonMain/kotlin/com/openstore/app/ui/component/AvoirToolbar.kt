@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
@@ -89,7 +88,6 @@ fun AvoirToolbar(
         title = {
             Row(
                 modifier = Modifier
-                    .fillMaxHeight()
                     .wrapContentWidth(unbounded = true),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -104,7 +102,7 @@ fun AvoirToolbar(
         navigationIcon = {
             navigationIcon?.let {
                 Box(
-                    Modifier.fillMaxHeight(),
+//                    Modifier.fillMaxHeight(),
                     contentAlignment = Alignment.Center
                 ) {
                     it()
@@ -114,7 +112,7 @@ fun AvoirToolbar(
         actions = {
             actions?.let {
                 Row(
-                    Modifier.fillMaxHeight(),
+//                    Modifier.fillMaxHeight(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     it()
@@ -134,7 +132,7 @@ fun appBarColors(
     actionIconContentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
     titleContentColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
 ): TopAppBarColors {
-    return TopAppBarDefaults.centerAlignedTopAppBarColors(
+    return TopAppBarDefaults.topAppBarColors(
         containerColor = containerColor,
         scrolledContainerColor = scrolledContainerColor,
         navigationIconContentColor = navigationIconContentColor,
