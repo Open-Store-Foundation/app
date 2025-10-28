@@ -5,6 +5,7 @@ import com.openstore.app.core.common.toFingerHex
 import com.openstore.app.data.Artifact
 import com.openstore.app.data.Asset
 import com.openstore.app.data.sources.AppChainService
+import com.openstore.app.installer.FetchingFailedReason
 import com.openstore.app.log.L
 import foundation.openstore.core.crypto.SignatureVerifier
 
@@ -13,17 +14,9 @@ sealed interface InstallationValidationResult {
         val fingerprints: List<String>
     ) : InstallationValidationResult
 
-    enum class Error : InstallationValidationResult {
-        NetworkError,
-        BuildInfoInvalid,
-        OwnershipVersionNotFound,
-        OwnershipVersionIsNotValid,
-        IncorrectChecksum,
-        IncorrectDomain,
-        CertificateIsNotValid,
-        ProofIsNotFound,
-        ProofIsNotValid
-    }
+    class Error(
+        val reason: FetchingFailedReason
+    ) : InstallationValidationResult
 }
 
 interface InstallationValidator {
@@ -55,46 +48,46 @@ class InstallationOnChainValidator(
             val version = appChainService.getVerifiedOwnershipVersion(asset.address, artifact.versionCode)
             if (version == null) {
                 L.e("Ownership version not found for address=${asset.address} versionCode=${artifact.versionCode}")
-                return InstallationValidationResult.Error.OwnershipVersionNotFound
+                return InstallationValidationResult.Error(FetchingFailedReason.OwnershipVersionNotFound)
             }
             L.d("Ownership version fetched: version=$version")
 
             val status = appChainService.getOwnershipVerificationStatus(asset.address, version)
             if (status == null) {
                 L.e("Ownership verification status not found for address=${asset.address} version=$version")
-                return InstallationValidationResult.Error.OwnershipVersionNotFound
+                return InstallationValidationResult.Error(FetchingFailedReason.OwnershipVersionNotFound)
             }
             L.d("Ownership verification status: status=${status.status}, lastSuccessDelta=${status.lastSuccessDelta}")
 
             if (status.status != 1L && status.lastSuccessDelta > WEEK_DELTA) { // TODO Status enum and WEEK_DELTA to config
                 L.e("Ownership version is not valid: status=${status.status}, lastSuccessDelta=${status.lastSuccessDelta}, weekDelta=$WEEK_DELTA")
-                return InstallationValidationResult.Error.OwnershipVersionIsNotValid
+                return InstallationValidationResult.Error(FetchingFailedReason.OwnershipVersionIsNotValid)
             }
 
             // Checking build info
             val buildInfo = appChainService.getBuildInfo(asset.address, artifact.versionCode)
             if (buildInfo == null) {
                 L.e("Build info not found for address=${asset.address} versionCode=${artifact.versionCode}")
-                return InstallationValidationResult.Error.BuildInfoInvalid
+                return InstallationValidationResult.Error(FetchingFailedReason.BuildInfoInvalid)
             }
             L.d("Build info fetched: checksum=${buildInfo.checksum}")
 
             if (buildInfo.checksum != artifact.checksum) {
                 L.e("Incorrect checksum: expected=${artifact.checksum}, actual=${buildInfo.checksum}")
-                return InstallationValidationResult.Error.IncorrectChecksum
+                return InstallationValidationResult.Error(FetchingFailedReason.IncorrectChecksum)
             }
 
             // Checking ownership and proofs
             val ownership = appChainService.getOwnershipInfo(asset = asset.address, version = version)
             if (ownership == null) {
                 L.e("Ownership info is null for address=${asset.address} version=$version")
-                return InstallationValidationResult.Error.NetworkError
+                return InstallationValidationResult.Error(FetchingFailedReason.NetworkError)
             }
             L.d("Ownership info fetched: domain=${ownership.domain}, blockNumber=${ownership.blockNumber}, fingerprints=${ownership.fingerprints.size}")
 
             if (ownership.domain != asset.website) {
                 L.e("Incorrect domain: expected=${asset.website}, actual=${ownership.domain}")
-                return InstallationValidationResult.Error.IncorrectDomain
+                return InstallationValidationResult.Error(FetchingFailedReason.IncorrectDomain)
             }
 
             val rawCerts = appChainService.getOwnershipProofsInfo(
@@ -105,7 +98,7 @@ class InstallationOnChainValidator(
 
             if (rawCerts == null) {
                 L.e("Ownership proofs info is null for block=${ownership.blockNumber}, address=${asset.address}, version=$version")
-                return InstallationValidationResult.Error.IncorrectChecksum
+                return InstallationValidationResult.Error(FetchingFailedReason.IncorrectChecksum)
             }
             L.d("Ownership proofs fetched: certs=${rawCerts.certs.size}, proofs=${rawCerts.proofs.size}")
 
@@ -124,7 +117,7 @@ class InstallationOnChainValidator(
 
                     if (data == null) {
                         L.e("Certificate decode failed")
-                        return InstallationValidationResult.Error.CertificateIsNotValid
+                        return InstallationValidationResult.Error(FetchingFailedReason.CertificateIsNotValid)
                     }
 
                     data
@@ -140,7 +133,7 @@ class InstallationOnChainValidator(
                 val proof = proofs[finger]
                 if (proof == null) {
                     L.e("Proof not found for finger=$finger")
-                    return InstallationValidationResult.Error.ProofIsNotFound
+                    return InstallationValidationResult.Error(FetchingFailedReason.ProofIsNotFound)
                 }
 
                 val material = prepareMaterial(asset.address, finger)
@@ -148,7 +141,7 @@ class InstallationOnChainValidator(
 
                 if (!isValid) {
                     L.e("Proof is not valid for finger=$finger")
-                    return InstallationValidationResult.Error.ProofIsNotValid
+                    return InstallationValidationResult.Error(FetchingFailedReason.ProofIsNotValid)
                 }
 
                 L.d("Proof is valid for finger=$finger")
@@ -158,7 +151,7 @@ class InstallationOnChainValidator(
             InstallationValidationResult.Data(fingerprints = fingerprints)
         }.getOrElse {
             L.d("Validation failed with exception: ${it.message}")
-            InstallationValidationResult.Error.NetworkError
+            InstallationValidationResult.Error(FetchingFailedReason.NetworkError)
         }
     }
 

@@ -5,18 +5,18 @@ import com.openstore.app.data.Artifact
 import com.openstore.app.data.Asset
 import com.openstore.app.data.sources.AppChainService
 import com.openstore.app.data.store.ObjectRepo
+import com.openstore.app.installer.FetchingFailedReason
 import com.openstore.app.installer.InQueueEvents
 import com.openstore.app.installer.InstallationEvent
 import com.openstore.app.installer.InstallationEventProducer
-import com.openstore.app.installer.InstallationMetaRepo
 import com.openstore.app.installer.InstallationRequest
 import com.openstore.app.installer.InstallationRequestQueue
 import com.openstore.app.installer.InstallationStatus
 import com.openstore.app.installer.InstallationStatusRepo
-import com.openstore.app.installer.InstalledObjectMeta
 import com.openstore.app.installer.MutableInstallationMetaRepo
 import com.openstore.app.installer.isSameAddress
 import com.openstore.app.log.L
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -141,20 +141,15 @@ class InstallationRepoDefault(
             installationRelay.emit(InstallationEvent.Fetching(request.asset.address))
         }
 
-        val validationResult = runCatching {
-            val result = installationValidator.validate(request)
-
-            if (result !is InstallationValidationResult.Data) {
-                return@runCatching null
+        val validationResult = installationValidator.validate(request)
+        val contractFingerprints = when (validationResult) {
+            is InstallationValidationResult.Data -> {
+                validationResult.fingerprints
             }
-
-            result
-        }.onFailure(L::e).getOrNull()
-
-        if (validationResult == null) {
-            L.d("Asset metadata is not valid ${artifact.refId}")
-            installationRelay.emit(InstallationEvent.FetchingFailed(request.asset.address)) // TODO
-            return
+            is InstallationValidationResult.Error -> {
+                failFetchingRequest(request, reason = validationResult.reason)
+                return
+            }
         }
 
         val sources = runCatching {
@@ -169,7 +164,7 @@ class InstallationRepoDefault(
 
         if (sources == null || sources.isEmpty()) {
             L.d("No d_sources found for ${artifact.refId}")
-            installationRelay.emit(InstallationEvent.FetchingFailed(request.asset.address)) // TODO
+            failFetchingRequest(request, reason = FetchingFailedReason.SourcesNotFound)
             return
         }
 
@@ -184,10 +179,24 @@ class InstallationRepoDefault(
             size = artifact.size,
             checksum = artifact.checksum,
             artifactUrls = sources,
-            contractFingerprints = validationResult.fingerprints
+            contractFingerprints = contractFingerprints
         )
 
         enqueueRequest(info)
+    }
+
+    private suspend fun failFetchingRequest(request: FetchingRequest, reason: FetchingFailedReason) {
+        L.e("Fetching request for [${request.asset.packageName}] is failed with reason - $reason")
+
+        mutex.withLock {
+            fetchingQueue.remove(request.asset.address)
+            installationRelay.emit(
+                InstallationEvent.FetchingFailed(
+                    address = request.asset.address,
+                    reason = reason
+                )
+            )
+        }
     }
 
     override suspend fun getInstalledAssets(): List<InstalledAsset> {

@@ -65,6 +65,7 @@ import com.openstore.app.Router
 import com.openstore.app.data.Artifact
 import com.openstore.app.data.Asset
 import com.openstore.app.installer.InstallationStatus
+import com.openstore.app.log.L
 import com.openstore.app.mvi.props.observeSafeState
 import com.openstore.app.screens.StoreInjector
 import com.openstore.app.screens.cells.assetVerificationTitle
