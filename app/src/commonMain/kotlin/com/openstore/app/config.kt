@@ -6,7 +6,7 @@ import coil3.toUri
 import com.openstore.app.data.node.AppNodes
 
 object AppConfig {
-    val Env = EnvConfig.Lh
+    val Env = EnvConfig.BscTest
     val Social = SocialLinks
 
     val Nodes = AppNodes(
