@@ -1,32 +1,32 @@
 package com.openstore.app.data.sources
 
-import com.openstore.app.core.common.add0x
-import com.openstore.app.core.common.toInt256Hex
+import com.openstore.app.core.common.toInt256Hex0x
+import com.openstore.app.core.common.toNotLeadingHex0x
 import com.openstore.app.core.net.TimedCacheMemory
 import com.openstore.app.core.net.getOrLoad
 import com.openstore.app.core.net.json_rpc.JsonRpcClient
 import com.openstore.app.core.net.json_rpc.JsonRpcRequest
 import com.openstore.app.data.Artifact
-import com.openstore.app.data.CategoryId
 import com.openstore.app.data.Asset
+import com.openstore.app.data.CategoryId
 import com.openstore.app.data.TrackId
 import com.openstore.app.data.decoder.AbiDecoder
 import com.openstore.app.data.decoder.AbiEncoder
 import com.openstore.app.data.decoder.AppAndOwnershipVersion
 import com.openstore.app.data.decoder.AppBuild
 import com.openstore.app.data.decoder.AppGeneralInfo
-import com.openstore.app.data.decoder.AppOwnershipProofsInfo
 import com.openstore.app.data.decoder.AppOwnerPluginV1Version
+import com.openstore.app.data.decoder.AppOwnershipProofsInfo
 import com.openstore.app.data.decoder.AssetOwnershipStatus
 import com.openstore.app.json.contentOrNull
 import io.ktor.http.URLBuilder
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.addJsonObject
 import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 
 data class AssetWithArtifact( // TODO use one with FetchingRequest
@@ -325,11 +325,11 @@ class AppChainServiceEvm(
         ownerVersion: Long,
     ): AppOwnershipProofsInfo? {
         val logs = getEthLogs(
-            fromBlock = blockNumber.toHexString().add0x(),
-            toBlock = blockNumber.toHexString().add0x(),
+            fromBlock = blockNumber.toNotLeadingHex0x(),
+            toBlock = blockNumber.toNotLeadingHex0x(),
             address = asset,
             topic0 = APP_OWNERSHIP_DATA_CHANGED_EVENT_TOPIC,
-            topic1 = ownerVersion.toInt256Hex().add0x()
+            topic1 = ownerVersion.toInt256Hex0x()
         )
 
         val log = logs.firstOrNull()
