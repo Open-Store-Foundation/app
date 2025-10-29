@@ -57,7 +57,7 @@ fun StoreUpdateDialog(
                     textAlign = TextAlign.Center,
                 )
 
-                AvoirButton("Update Now") { onUpdate(AppConfig.Env.StoreAppAddress) }
+                AvoirButton("Update Now") { onUpdate(AppConfig.Env.OpenStoreAppAddress) }
             }
         }
     }
