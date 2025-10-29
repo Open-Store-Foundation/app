@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.openstore.app.data.CategoryId
 import com.openstore.app.data.ObjTypeId
 import com.openstore.app.data.ObjectId
@@ -177,7 +176,7 @@ fun App(
                             navigator.navigate(Router.CustomNode)
                         },
                         onAppPage = {
-                            navigator.navigate(Router.ObjDetails.withAddress(AppConfig.Env.StoreAppAddress))
+                            navigator.navigate(Router.ObjDetails.withAddress(AppConfig.Env.OpenStoreAppAddress))
                         }
                     )
                 }
