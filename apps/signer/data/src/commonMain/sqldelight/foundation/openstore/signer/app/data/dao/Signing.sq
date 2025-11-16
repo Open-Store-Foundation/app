@@ -1,0 +1,51 @@
+import foundation.openstore.gcip.core.transport.GcipTransformAlgorithm;
+import foundation.openstore.gcip.core.transport.GcipBinaryFormat;
+import foundation.openstore.signer.app.data.dao.SigningTarget;
+import kotlin.collections.List;
+import kotlin.time.Instant;
+import kotlin.Long;
+import foundation.openstore.gcip.core.transport.GcipId;
+
+CREATE TABLE SigningEntity (
+    signingId TEXT AS GcipId NOT NULL PRIMARY KEY,
+    sequenceId INTEGER AS Long,
+    connectionId TEXT AS GcipId NOT NULL,
+    walletId TEXT AS GcipId NOT NULL,
+    credentialId TEXT AS GcipId,
+    blockId TEXT NOT NULL,
+    challenge TEXT,
+    challengeTransforms TEXT AS List<GcipTransformAlgorithm>,
+    challengeFormat TEXT AS GcipBinaryFormat,
+    method INTEGER AS SigningTarget NOT NULL,
+    meta BLOB,
+    createdAt INTEGER AS Instant NOT NULL,
+    FOREIGN KEY(connectionId) REFERENCES ConnectionEntity(id) ON DELETE CASCADE
+);
+
+CREATE INDEX index_SigningEntity_walletId ON SigningEntity(walletId);
+CREATE INDEX index_SigningEntity_sequenceId ON SigningEntity(sequenceId);
+
+insert:
+INSERT OR ABORT INTO SigningEntity(signingId, sequenceId, connectionId, walletId, credentialId, blockId, challenge, challengeTransforms, challengeFormat, method, meta, createdAt)
+VALUES ?;
+
+findAllByWallet:
+SELECT *
+FROM SigningEntity
+WHERE walletId = ?
+ORDER BY sequenceId DESC;
+
+getMaxSequenceId:
+SELECT MAX(sequenceId)
+FROM SigningEntity;
+
+findAllSignings:
+SELECT 
+    s.*,
+    conn.*,
+    cred.*
+FROM SigningEntity s
+JOIN ConnectionEntity conn ON s.connectionId = conn.id
+LEFT JOIN CredentialEntity cred ON s.credentialId = cred.id
+WHERE s.walletId = ?
+ORDER BY s.sequenceId DESC;

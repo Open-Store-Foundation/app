@@ -8,7 +8,7 @@ import com.openstore.app.core.net.NetworkProvider
 import com.openstore.app.core.net.NetworkProviderLauncher
 import com.openstore.app.core.net.PlatformNetworkProvider
 
-actual class NetModule actual constructor(
+actual class NetModule(
     netConfig: NetConfig,
 ) {
     actual val clientEngineFactory: HttpClientEngineFactory<*> by lazyUnsafe { OkHttpClientFactory }

@@ -17,9 +17,8 @@ kotlin {
 
         androidMain {
             dependencies {
-                implementation(projects.core.os)
-
                 implementation(libs.coroutines.android)
+                implementation(libs.okhttp)
             }
         }
 
@@ -30,16 +29,15 @@ kotlin {
             }
         }
 
-//        iosMain {
-//            dependencies {
-//                implementation(libs.ktor.darwin)
-//            }
-//        }
+        iosMain {
+            dependencies {
+                implementation(libs.ktor.darwin)
+            }
+        }
 
         jsMain {
             dependencies {
                 implementation(projects.core.os)
-
                 implementation(libs.ktor.js)
             }
         }

@@ -1,0 +1,27 @@
+import foundation.openstore.gcip.core.transport.GcipTransportType;
+import foundation.openstore.gcip.core.transport.GcipId;
+import kotlin.time.Instant;
+
+CREATE TABLE ExchangeEntity (
+    eid TEXT AS GcipId NOT NULL PRIMARY KEY,
+    connectionId TEXT AS GcipId,
+    transport INTEGER AS GcipTransportType NOT NULL,
+    transportData BLOB NOT NULL,
+    sessionKey BLOB NOT NULL,
+    meta BLOB,
+    createdAt INTEGER AS Instant NOT NULL
+);
+
+insert:
+INSERT OR ABORT INTO ExchangeEntity(eid, connectionId, transport, transportData, sessionKey, meta, createdAt)
+VALUES ?;
+
+findById:
+SELECT *
+FROM ExchangeEntity
+WHERE eid = ?;
+
+setConnection:
+UPDATE ExchangeEntity
+SET connectionId = ?
+WHERE eid = ?;

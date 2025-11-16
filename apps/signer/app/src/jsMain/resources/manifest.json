@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "Firebox",
+    "version": "1.0.0",
+    "description": "Credential Manager",
+    "permissions": [
+        "storage",
+        "scripting",
+        "activeTab"
+    ],
+    "action": {
+        "default_popup": "index.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "signer-js.js"
+            ],
+            "run_at": "document_start"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "externally_connectable": {
+        "ids": [
+            "*"
+        ]
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+    }
+}

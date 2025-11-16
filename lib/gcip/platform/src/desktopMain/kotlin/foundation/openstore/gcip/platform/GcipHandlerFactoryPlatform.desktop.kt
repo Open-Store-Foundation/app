@@ -1,0 +1,3 @@
+package foundation.openstore.gcip.platform
+
+actual object GcipHandlerFactoryPlatform

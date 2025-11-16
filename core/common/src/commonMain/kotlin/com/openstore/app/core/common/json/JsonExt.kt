@@ -1,4 +1,4 @@
-package com.openstore.app.json
+package com.openstore.app.core.common.json
 
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement

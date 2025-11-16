@@ -24,12 +24,14 @@ actual object ThreadChecker {
     }
 
     actual fun isStateThread(): Boolean {
-        return NSThread.currentThread.name?.startsWith(STATE_THREAD_NAME)
-            ?: return false
+//        return NSThread.currentThread.name?.startsWith(STATE_THREAD_NAME)
+//            ?: return false // TODO
+        return true;
     }
 
     actual fun isStateDiffThread(): Boolean {
-        return NSThread.currentThread.name?.startsWith(STATE_DIFF_THREAD_NAME)
-            ?: return false
+//        return NSThread.currentThread.name?.startsWith(STATE_DIFF_THREAD_NAME)
+//            ?: return false // TODO
+        return true
     }
 }

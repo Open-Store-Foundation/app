@@ -1,15 +1,16 @@
 package com.openstore.app.core.net
 
+import android.content.Context
 import com.openstore.app.OkHttpClientFactory
 import io.ktor.client.engine.HttpClientEngineFactory
 import com.openstore.app.core.common.lazyUnsafe
-import com.openstore.app.core.os.Android
 
-actual class NetModule actual constructor(
+actual class NetModule (
+    private val context: Context,
     netConfig: NetConfig,
 ) {
     actual val clientEngineFactory: HttpClientEngineFactory<*> by lazyUnsafe { OkHttpClientFactory }
-    actual val networkProvider: NetworkProviderLauncher by lazyUnsafe { PlatformNetworkProvider(Android.context) }
+    actual val networkProvider: NetworkProviderLauncher by lazyUnsafe { PlatformNetworkProvider(context) }
     actual val logger: NetLogger by lazyUnsafe { NetLogger() }
 
     init {

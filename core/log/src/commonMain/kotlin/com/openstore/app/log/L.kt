@@ -117,7 +117,7 @@ object L {
         logType: LogType,
         e: Throwable?,
         vararg o: Any?,
-        loggerClassName: String = L::class.simpleName.orEmpty()
+        loggerClassName: String = L::class.simpleName.orEmpty() // TODO qualifiedName
     ) {
         if (!isInit.load()) {
 //            val msg = o.joinToString(" | ") { it.toString() }
@@ -160,9 +160,11 @@ object L {
         lineNumber: Int,
         vararg o: Any?,
     ) {
+        val tag = className.substringAfterLast(".")
+
         logStringBuilder
             .clear()
-            .append("[$threadName] $methodName:$lineNumber ")
+            .append("[$threadName] $tag.$methodName:$lineNumber ")
 
         for (obj in o) {
             val maxLength = config.maxLength
@@ -174,17 +176,9 @@ object L {
             logStringBuilder.append(data).append(" ")
 
             if (logStringBuilder.length >= maxLength) {
-                // strip long input data.
                 logStringBuilder.append(" ...(strip long data, more then $maxLength bytes) ")
                 break
             }
-        }
-
-        val substringWithSimpleClassName = className.substringAfterLast(".")
-
-        var tag = className
-        if (substringWithSimpleClassName != className) {
-            tag = substringWithSimpleClassName
         }
 
         val msg = logStringBuilder.toString()

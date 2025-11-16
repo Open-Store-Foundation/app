@@ -1,5 +1,5 @@
 package com.openstore.app.store.common.store
 
-expect class StorageModule() {
+expect class StorageModule {
     val keyValueFactory: PlatformKeyValueFactory
 }

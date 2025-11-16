@@ -48,7 +48,7 @@ buildCache {
 }
 
 includeBuild(
-    "convention-plugins",
+    rootDir.resolve("gradle/plugins"),
 )
 
 rootProject.name = "OpenStore"
@@ -56,29 +56,51 @@ rootProject.name = "OpenStore"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
-    ":app",
-    ":library",
-    ":ui",
-    ":installer",
+    /////////////////////////////// APPS
+    // Store
+    ":apps:store:app",
+    ":apps:store:core:strings",
+    ":apps:store:core:installer",
+    ":apps:store:core:cert",
+    ":apps:store:feature:catalog",
 
-    ":kitten:api",
-    ":kitten:core",
-    ":kitten:viewmodel",
+    // Signer
+    ":apps:signer:app",
+    ":apps:signer:data",
 
-    ":features:catalog",
+    // Wallet Sample
+    ":apps:sample:wallet",
 
-    ":core",
-    ":core:common",
-    ":core:os",
-    ":core:crypto",
-    ":core:store",
+    /////////////////////////////// LIBS
+    // UI
+    ":lib:avoir",
+
+    // GCIP
+    ":lib:gcip:core",
+    ":lib:gcip:platform",
+    ":lib:gcip:transform",
+    ":lib:gcip:encryption",
+    ":lib:gcip:signing",
+    ":lib:gcip:sdk",
+
+    // DI
+    ":lib:kitten:api",
+    ":lib:kitten:core",
+    ":lib:kitten:viewmodel",
+
+    // MVI
+    ":lib:mvi",
+
+    /////////////////////////////// COMMON
     ":core:net",
     ":core:net:json-rpc",
     ":core:net:core",
 
+    ":core:os",
+    ":core:common",
     ":core:config",
     ":core:log",
-    ":core:mvi",
-    ":core:strings",
     ":core:async",
+    ":core:root",
+    ":core:store",
 )
