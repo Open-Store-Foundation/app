@@ -1,7 +1,6 @@
 package com.openstore.app.core.net
 
 import kotlinx.coroutines.flow.StateFlow
-import com.openstore.app.core.os.Js
 
 actual class PlatformNetworkProvider : NetworkProviderLauncher {
 

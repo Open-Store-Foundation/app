@@ -6,7 +6,7 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.Logger
 import com.openstore.app.core.common.lazyUnsafe
 
-actual class NetModule actual constructor(
+actual class NetModule(
     netConfig: NetConfig,
 ) {
     actual val clientEngineFactory: HttpClientEngineFactory<*> by lazyUnsafe { Darwin }

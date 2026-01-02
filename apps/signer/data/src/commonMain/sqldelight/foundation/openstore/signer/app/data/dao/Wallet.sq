@@ -1,0 +1,38 @@
+import kotlin.Boolean;
+import foundation.openstore.gcip.core.transport.GcipId;
+import kotlin.time.Instant;
+
+CREATE TABLE WalletEntity (
+    id TEXT AS GcipId NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    initials TEXT NOT NULL,
+    encryptedMnemonic BLOB NOT NULL,
+    isVerified INTEGER AS Boolean NOT NULL DEFAULT 0,
+    createdAt INTEGER AS Instant NOT NULL
+);
+
+findById:
+SELECT *
+FROM WalletEntity
+WHERE id = ?;
+
+findAll:
+SELECT *
+FROM WalletEntity;
+
+insert:
+INSERT OR ABORT INTO WalletEntity(id, name, initials, encryptedMnemonic, isVerified, createdAt)
+VALUES ?;
+
+delete:
+DELETE FROM WalletEntity
+WHERE id = ?;
+
+verify:
+UPDATE WalletEntity
+SET isVerified = ?
+WHERE id = ?;
+
+count:
+SELECT count(*)
+FROM WalletEntity;

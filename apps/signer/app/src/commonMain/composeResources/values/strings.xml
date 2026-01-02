@@ -1,0 +1,114 @@
+<resources>
+    <string name="ConfirmAction">Confirm Action</string>
+    <string name="ConnectTo">Connect to </string>
+    <string name="ExtendFor">Extend for </string>
+    <string name="Credentials">Credentials</string>
+    <string name="Wallet">Wallet</string>
+    <string name="ShowAll">Show all</string>
+    <string name="ChangeWallet">Change wallet</string>
+    <string name="Back">Back</string>
+    <string name="Connect">Connect</string>
+    <string name="SignFor">Sign for </string>
+    <string name="Name">Name</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Extend">Extend</string>
+    <string name="Sign">Sign</string>
+    <string name="SigningContent">Signing Content</string>
+    <string name="SelectWallet">Select Wallet</string>
+    <string name="NoWalletsFound">No wallets found</string>
+    <string name="Mnemonic">Mnemonic</string>
+    <string name="CantSeeWallet">Can't see your wallet?</string>
+
+    <!-- Mnemonic -->
+    <string name="Viewer">Viewer</string>
+    <string name="CopyToClipboard">Copy to Clipboard</string>
+    <string name="Continue">Continue</string>
+    <string name="MnemonicDescription">If you forget or reveal this phrase to anyone, you will lose your assets.</string>
+    <string name="Verify">Verify</string>
+    <string name="VerifyDescription">Select the correct word for each number from the options below to verify your recovery phrase</string>
+    <string name="WordNum">Word #%1$d</string>
+    <string name="Skip">Skip</string>
+    <string name="VerificationFailed">Verification Failed</string>
+    <string name="VerificationFailedDescription">The selected words do not match your recovery phrase. Please review your selection and try again.</string>
+    <string name="TryAgain">Try again</string>
+    <string name="SkipVerification">Skip verification</string>
+    <string name="SkipVerificationDescription">Are you sure you want to skip the verification process?</string>
+
+    <!-- Home -->
+    <string name="WelcomeTo">Welcome to</string>
+    <string name="OpenLedger">Firebox</string>
+    <string name="CreateNew">Create new</string>
+    <string name="ImportExisting">Import existing</string>
+    <string name="TermsAndPrivacy">By clicking 'Create new' or 'Import existing' you agree to our\n</string>
+    <string name="TermsOfService">Terms of Service</string>
+    <string name="And">" and "</string>
+    <string name="PrivacyPolicy">Privacy Policy</string>
+
+    <!-- Wallet List -->
+    <string name="AddNewWallet">Add new wallet</string>
+    <string name="ChooseOptionToAddWallet">Create new or import if you already have wallet</string>
+    <string name="Verified">Verified</string>
+    <string name="Unverified">Unverified</string>
+
+    <!-- Pin -->
+    <string name="RepeatPasscode">Repeat Passcode</string>
+    <string name="CreatePasscode">Create Passcode</string>
+    <string name="EnterPasscode">Enter Passcode</string>
+    <string name="PasscodeNotMatch">Passcode doesn't match</string>
+    <string name="DeviceNotSecure">Device is not secure</string>
+    <string name="PasscodeTimeout">Passcode timeout: %1$d sec</string>
+    <string name="DontRememberPasscode">Don't remember passcode?</string>
+    <string name="ForgotPasscodeTitle">Passcode recovery</string>
+    <string name="ForgotPasscodeDescription">For security reasons, the passcode can’t be recovered. Please reinstall the application or clear the app data to start over.</string>
+    <string name="ForgotPasscodeConfirm">OK</string>
+
+    <!-- Settings -->
+    <string name="Settings">Settings</string>
+    <string name="ChooseTheme">Choose theme</string>
+    <string name="General">General</string>
+    <string name="Theme">Theme</string>
+    <string name="System">System</string>
+    <string name="Dark">Dark</string>
+    <string name="Light">Light</string>
+    <string name="Security">Security</string>
+    <string name="Contacts">Contacts</string>
+    <string name="Help">Help</string>
+    <string name="Telegram">Telegram</string>
+    <string name="XCom">X.com</string>
+    <string name="Discord">Discord</string>
+
+    <!-- Import Wallet -->
+    <string name="ImportWallet">Import wallet</string>
+    <string name="WalletName">Wallet name</string>
+    <string name="WalletNameDescription">You can distinguish wallets by their names</string>
+    <string name="MnemonicPhrase">Mnemonic phrase</string>
+    <string name="MnemonicPhraseDescription">Enter your 12 or 24 word recovery phrase</string>
+    <string name="Import">Import</string>
+
+    <!-- Wallet Details -->
+    <string name="DeleteWallet">Delete wallet</string>
+    <string name="DeleteWalletDescription">Are you sure you want to delete this wallet? This action cannot be undone.</string>
+    <string name="Delete">Delete</string>
+    <string name="DeleteConnection">Delete connection</string>
+    <string name="DisconnectFor">Disconnect </string>
+    <string name="DeleteConnectionDescription">Are you sure you want to delete this connection?</string>
+    <string name="ShowMnemonic">Show mnemonic</string>
+    <string name="PopularChains">Popular chains</string>
+    <string name="NoConnectionsYet">No connections yet</string>
+    <string name="History">History</string>
+    <string name="NoHistoryYet">No history yet</string>
+    <string name="SigningNum">Signing #%1$d</string>
+    <string name="ID">ID</string>
+    <string name="Type">Type</string>
+    <string name="Credential">Credential</string>
+    <string name="DerivationPath">Derivation Path</string>
+    <string name="Curve">Curve</string>
+    <string name="Service">Service</string>
+    <string name="Info">Info</string>
+    <string name="Address">Address</string>
+    <string name="PublicKey">Public Key</string>
+    <string name="Connections">Connections</string>
+
+    <!-- Create Wallet -->
+    <string name="CreateNewWallet">Create new wallet</string>
+</resources>

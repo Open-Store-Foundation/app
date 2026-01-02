@@ -16,7 +16,6 @@ kotlin {
 
         getByName("androidMain") {
             dependencies {
-                implementation(projects.core.os)
                 implementation(libs.settings)
             }
         }

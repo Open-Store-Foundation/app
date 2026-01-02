@@ -37,6 +37,7 @@ fun ByteArray.toFingerHex(): String {
             sb.append(':')
         }
     }
+
     return sb.toString()
 }
 

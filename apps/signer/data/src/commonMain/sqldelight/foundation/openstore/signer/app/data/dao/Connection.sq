@@ -1,0 +1,37 @@
+import foundation.openstore.gcip.core.GcipScheme;
+import foundation.openstore.gcip.core.transport.GcipId;
+import kotlin.time.Instant;
+
+CREATE TABLE ConnectionEntity (
+    id TEXT AS GcipId NOT NULL PRIMARY KEY,
+    serviceName TEXT NOT NULL,
+    serviceOrigin TEXT NOT NULL,
+    callerId TEXT,
+    callerSignature TEXT,
+    callerScheme TEXT,
+    walletId TEXT AS GcipId NOT NULL,
+    meta BLOB,
+    createdAt INTEGER AS Instant NOT NULL,
+    FOREIGN KEY(walletId) REFERENCES WalletEntity(id) ON DELETE CASCADE
+);
+
+CREATE INDEX index_ConnectionEntity_walletId ON ConnectionEntity(walletId);
+
+findById:
+SELECT *
+FROM ConnectionEntity
+WHERE id = :connectionId;
+
+findAllByWalletId:
+SELECT *
+FROM ConnectionEntity
+WHERE walletId = :walletId
+ORDER BY createdAt DESC;
+
+insert:
+INSERT OR ABORT INTO ConnectionEntity(id, serviceName, serviceOrigin, callerId, callerSignature, callerScheme, walletId, meta, createdAt)
+VALUES ?;
+
+delete:
+DELETE FROM ConnectionEntity
+WHERE id = ?;

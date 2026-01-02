@@ -1,0 +1,40 @@
+# # 1. Определяем архитектуру (Simulator vs Device), чтобы найти правильную папку Gradle
+if [ "$PLATFORM_NAME" == "iphonesimulator" ]; then
+    # Для симуляторов обычно iosSimulatorArm64 или iosX64
+    if [ "$NATIVE_ARCH_ACTUAL" == "x86_64" ]; then
+        KOTLIN_TARGET="iosX64"
+    else
+        KOTLIN_TARGET="iosSimulatorArm64"
+    fi
+else
+    # Для реального устройства
+    KOTLIN_TARGET="iosArm64"
+fi
+
+# 2. Путь к папке build вашего Kotlin модуля.
+# $(SRCROOT) - это папка, где лежит .xcodeproj.
+APP_ROOT="$SRCROOT/.."
+GRADLE_RESOURCES_DIR="$APP_ROOT/app/build/kotlin-multiplatform-resources/aggregated-resources/$KOTLIN_TARGET"
+
+# 3. Куда копировать внутри расширения
+# Compose ищет ресурсы в папке "compose-resources" в корне бандла
+DESTINATION_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/compose-resources"
+
+# 4. Проверяем и копируем
+if [ -d "$GRADLE_RESOURCES_DIR/composeResources" ]; then
+    echo "Found Compose resources at $GRADLE_RESOURCES_DIR"
+
+    # Удаляем старую версию, если есть
+    rm -rf "$DESTINATION_DIR"
+    mkdir -p "$DESTINATION_DIR"
+
+    # Копируем папку composeResources ВНУТРЬ папки compose-resources
+    # В итоге получится структура: GcipExtension.appex/compose-resources/composeResources/...
+    cp -R "$GRADLE_RESOURCES_DIR/composeResources" "$DESTINATION_DIR/"
+
+    echo "Successfully copied resources to $DESTINATION_DIR"
+else
+    echo "Error: Compose resources not found at $GRADLE_RESOURCES_DIR"
+    echo "Check if the Gradle build ran successfully and the path is correct."
+    exit 1
+fi

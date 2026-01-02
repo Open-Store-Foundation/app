@@ -1,0 +1,16 @@
+target 'signer' do
+  use_frameworks!
+  platform :ios, '14.1'
+
+  # If you are using CocoaPods to integrate the shared framework
+  # pod 'OsSignerLib', :path => '../signer'
+  # Note: Standard KMP template usually involves a 'script' build phase in Xcode to invoke Gradle
+  # or using a CocoaPods Gradle plugin which generates the podspec.
+  # Since we don't have the podspec generated yet, this is just a placeholder.
+end
+
+
+
+
+
+

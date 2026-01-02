@@ -3,6 +3,10 @@ plugins {
 }
 
 kotlin {
+    androidLibrary {
+        androidResources.enable = true
+    }
+
     sourceSets {
         androidMain {
             dependencies {
