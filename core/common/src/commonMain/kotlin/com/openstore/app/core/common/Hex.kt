@@ -1,5 +1,6 @@
 package com.openstore.app.core.common
 
+private val HEX_CHARS_UPPER = "0123456789ABCDEF".toCharArray()
 val NotLeadingHexFormat by lazy {
     HexFormat {
         number {
@@ -11,7 +12,6 @@ val NotLeadingHexFormat by lazy {
 fun ByteArray.toLower0xHex(): String = "0x${this.toHexString()}"
 fun ByteArray.toUpper0xHex(): String = "0x${this.toHexString(HexFormat.UpperCase)}"
 
-private val HEX_CHARS_UPPER = "0123456789ABCDEF".toCharArray()
 fun ByteArray.toFingerHex(): String {
     if (this.isEmpty()) {
         return ""
