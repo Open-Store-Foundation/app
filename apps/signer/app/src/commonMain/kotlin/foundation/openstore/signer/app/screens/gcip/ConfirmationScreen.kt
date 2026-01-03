@@ -336,7 +336,7 @@ private fun ColumnScope.ConnectionRequestContent(
                             when (type) {
                                 is Derivation.Algo -> PropertyCell("#$i", type.algo.displayName)
                                 is Derivation.Blob,
-                                is Derivation.Path -> PropertyCell("#$i", type.displayKey)
+                                is Derivation.Path -> PropertyCell("#$i", type.displayKey) // TODO always 0
                             }
                         }
                     }

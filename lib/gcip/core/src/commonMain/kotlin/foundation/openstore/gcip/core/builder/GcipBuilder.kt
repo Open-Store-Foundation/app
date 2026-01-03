@@ -54,12 +54,14 @@ class GcipBuilderDefault : GcipBuilder {
                     name = request.data.clientData.name.take(GcipConfig.MAX_NAME_LENGTH),
                     origin = request.data.clientData.origin
                 ),
-                credRequests = request.data.credentials.map { derivation ->
+                credRequests = listOf(
                     GcipCredentialRequest(
                         type = GcipCredentialType.PublicKey,
-                        derivations = listOf(derivation.toDerivationRequest())
+                        derivations = request.data.credentials.map { derivation ->
+                            derivation.toDerivationRequest()
+                        }
                     )
-                },
+                ),
                 transport = request.data.transport.toGcipTransport(),
                 meta = request.data.meta?.payload,
             )

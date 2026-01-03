@@ -37,6 +37,8 @@ import foundation.openstore.signer.app.generated.resources.NoWalletsFound
 import foundation.openstore.signer.app.generated.resources.Res
 import org.jetbrains.compose.resources.stringResource
 
+private const val DEFAULT_VISIBLE_CREDS = 4
+
 @Composable
 fun WalletSelectorScreen(
     request: SignerRequest.Connect,
@@ -54,7 +56,7 @@ fun WalletSelectorScreen(
         if (isExpanded) {
             wallets
         } else {
-            wallets.take(4)
+            wallets.take(DEFAULT_VISIBLE_CREDS)
         }
     }
 
@@ -116,7 +118,7 @@ fun WalletSelectorScreen(
                 )
             }
 
-            if (!isExpanded && wallets.size > 4) {
+            if (!isExpanded && wallets.size > DEFAULT_VISIBLE_CREDS) {
                 item {
                     Column(
                         modifier = Modifier

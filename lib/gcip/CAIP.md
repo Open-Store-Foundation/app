@@ -12,7 +12,7 @@ created: 2025-11-30
 ## Abstract
 
 A protocol based on FIDO2 WebAuthn principles for delegating private key storage and transaction
-signing to a separate secure application (Signer App). It allows Client Apps (Wallets, DApps)running
+signing to a separate secure application (Signer App). It allows Client Apps (Wallets, DApps) running
 on various platforms (Mobile, Desktop, Web) to request Public Keys and sign content using a
 credential ID, without direct access to the user's mnemonic phrases or private keys. The protocol
 utilizes a fully binary block structure to ensure efficiency and compatibility across various
@@ -25,19 +25,11 @@ transports.
 The current model of storing keys within wallet applications has several significant security and
 operational drawbacks:
 
-1. **Frequent Updates:** Wallets are updated often, which increases the risk of introducing
-   vulnerabilities.
-2. **Lack of Audits:** Frequent releases make it difficult to conduct regular security audits.
-3. **Closed Code:** Many wallets are not fully open-source.
-4. **Centralized Releases:** In many wallet organizations, even for popular wallets, a single
-   developer often retains the ability to modify the codebase and publish new versions.
-5. **Broader Attack Surface:** Modern wallets embed browsers, dapp connectors, push messaging,
-   analytics, ad SDKs, crash reporters, and deep-link handlers—each expands the exploitable surface
-   around key material.
-6. **Privilege & Permissions:** Internet access and public/shared storage make key theft practical:a
-   compromised app can simply upload keys or write them to shared storage for later pickup.
-7. **Recovery and Portability Pain:** Users repeatedly import seeds into multiple apps/devices; each
-   import increases exposure and error risk.
+1. **Audit Impossibility:** Frequent updates for new features make it infeasible to conduct professional security audits for every release.
+2. **Unverifiable Integrity:** Centralized, closed-source release processes mean users cannot verify that the app code matches the published source, forcing them to trust that no backdoors were added.
+3. **Bloated Attack Surface:** Modern wallets have browsers, dapp connectors, push messaging, analytics, and many other SDKs. Each feature introduces potential vulnerabilities.
+4. **Network Exposure:** Wallets inherently require internet access, providing a direct channel for malware to access private keys.
+5. **Seed Fatigue:** Users repeatedly import seeds into multiple apps/devices, multiplying the points of failure and increasing the chance of falling for phishing attacks.
 
 ### 2. Benefits of a dedicated Signer
 
@@ -58,8 +50,7 @@ narrow, auditable protocol. Key benefits:
 - **Cross-Device Ready:** Designed to support cross-device signing and future credential
   synchronization between devices.
 - **Binary Protocol:** Uses a compact binary structure (CBOR/Bytes), reducing memory usage and
-  processing overhead.
-- **Transport Optimized:** The compressed format allows passing large datasets through constrained
+  processing overhead. The compressed format allows passing large datasets through constrained
   OS channels (e.g., Android Intents, BLE, or QR codes) where standard JSON would fail.
 - **Reduced Liability:** Wallet developers can build rich interfaces without the high risk and
   complexity of managing long-term secrets directly.
@@ -74,14 +65,14 @@ narrow, auditable protocol. Key benefits:
 | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/1Signer.png?raw=true" alt="1Signer" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/2Wallet.png?raw=true" alt="2Wallet" width="250"> |
 
 ### Connecting Flow
-| | | | |
-|---|---|---|---|
+| 1.                                                                                                                                | 2.                                                                                                                                        | 3.                                                                                                                                        | 4.                                                                                                                                  |
+|-----------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/3Der.png?raw=true" alt="3Der" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/4Wallets.png?raw=true" alt="4Wallets" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/5Connect.png?raw=true" alt="5Connect" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/6Pass.png?raw=true" alt="6Pass" width="250"> |
 
 ### Signing Flow
-| | | | |
-|---|---|---|---|
-| <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/10Send.png?raw=true" alt="7Connects" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/8Sign.png?raw=true" alt="8Sign" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/9Pass.png?raw=true" alt="9Pass" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/7Connects.png?raw=true" alt="10Send" width="250"> |
+| 1.                                                                                                                                       | 2.                                                                                                                                  | 3.                                                                                                                                 | 4.                                                                                                                                       |
+|------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/7Connects.png?raw=true" alt="7Connects" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/8Sign.png?raw=true" alt="8Sign" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/9Pass.png?raw=true" alt="9Pass" width="250"> | <img src="https://github.com/Open-Store-Foundation/brandbook/blob/main/Firebox/screens/10Send.png?raw=true" alt="10Send" width="250"> |
 
 ## Specification
 
@@ -99,18 +90,6 @@ narrow, auditable protocol. Key benefits:
   `credId`.
 - **Connection** is session concept represented by `connectionId`, created during `gcip.connect` and
   referenced by later calls (for example, `gcip.extend` and `gcip.sign`).
-
-#### 1.2. Common Rules
-
-- **Block Integrity**: The receiver MUST reject malformed blocks, unknown/unsupported versions, and
-  inconsistent `length` fields (e.g., truncated payload or extra bytes beyond declared length).
-- **Origin Handling**: If `clientData.origin` is present, the Signer SHOULD validate it against what
-  the platform transport can attest. If it cannot be verified, the Signer SHOULD treat it as
-  unverified and reflect that in UI and/or status.
-- **Challenge Handling**: If a request includes a `challenge`, the Signer MUST apply `transform` (if
-  any) in order and then sign the resulting bytes with the selected credential and algorithm.
-- **User Confirmation**: For any operation that produces a signature over a challenge, the Signer
-  MUST require explicit user approval.
 
 ### 2. Core Protocol
 
@@ -174,9 +153,9 @@ ciphertext bytes (session).
 | Key    | Field           | Type                 | Description                                                                               |
 |:-------|:----------------|:---------------------|:------------------------------------------------------------------------------------------|
 | `0x01` | **eid**         | ID (16 bytes) / null | Exchange/session identifier. Optional (nil) for initial handshake request.                |
-| `0x02` | **data**        | Bytes                | Plaintext CBOR method payload (when `iv` absent) or ciphertext bytes (when `iv` present). |
-| `0x03` | **iv**          | Bytes (12) / null    | AES-GCM nonce for encrypted sessions.                                                     |
-| `0x04` | **exchangeKey** | **COSE_Key** / null  | Optional ephemeral ECDH public key (COSE Map) during handshake / exchange. See **3.9.2**. |
+| `0x02` | **iv**          | Bytes (12) / null    | AES-GCM nonce for encrypted sessions.                                                     |
+| `0x03` | **exchangeKey** | **COSE_Key** / null  | Optional ephemeral ECDH public key (COSE Map) during handshake / exchange. See **3.9.2**. |
+| `0x04` | **data**        | Bytes                | Plaintext CBOR method payload (when `iv` absent) or ciphertext bytes (when `iv` present). |
 
 ##### 2.2.1. Wrapping rules
 
@@ -239,8 +218,8 @@ Request:
 |:--------------|:-----|:---------------|:-----------------------------------------------|
 | `eid`         | 0    | `null`         | Absent (null)                                  |
 | `iv`          | 0    | `null`         | Absent for handshake request                   |
-| `data`        | N    | `plaintext`    | CBOR-encoded method payload                    |
 | `exchangeKey` | N    | `clientPubKey` | Client's ephemeral P-256 public key (COSE_Key) |
+| `data`        | N    | `plaintext`    | CBOR-encoded method payload                    |
 
 Response:
 
@@ -248,8 +227,8 @@ Response:
 |:--------------|:-----|:---------------|:-----------------------------------------------|
 | `eid`         | 16   | `ID`           | New session ID                                 |
 | `iv`          | 12   | `random()`     | AES-GCM nonce                                  |
-| `data`        | N    | `ciphertext`   | AES-GCM ciphertext                             |
 | `exchangeKey` | N    | `signerPubKey` | Signer's ephemeral P-256 public key (COSE_Key) |
+| `data`        | N    | `ciphertext`   | AES-GCM ciphertext                             |
 
 ##### 2.2.6.2 Session (existing session)
 
@@ -267,8 +246,8 @@ Request / Response:
 |:--------------|:-----|:-------------|:--------------------|
 | `eid`         | 16   | `ID`         | Existing session ID |
 | `iv`          | 12   | `random()`   | AES-GCM nonce       |
-| `data`        | N    | `ciphertext` | AES-GCM ciphertext  |
 | `exchangeKey` | 0    | `null`       | MUST be absent      |
+| `data`        | N    | `ciphertext` | AES-GCM ciphertext  |
 
 ##### 2.2.7. AEAD (AES-GCM) and AAD binding
 

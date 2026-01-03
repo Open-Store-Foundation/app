@@ -70,9 +70,9 @@ object GcipCborTable {
 
         object EncryptionMessage {
             const val EID = 0x01L
-            const val DATA = 0x02L
+            const val EXCHANGE_KEY = 0x02L
             const val IV = 0x03L
-            const val EXCHANGE_KEY = 0x04L
+            const val DATA = 0x04L
         }
 
         const val META_ID = 0x20L
