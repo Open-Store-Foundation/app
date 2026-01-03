@@ -29,7 +29,7 @@ operational drawbacks:
 2. **Unverifiable Integrity:** Centralized, closed-source release processes mean users cannot verify that the app code matches the published source, forcing them to trust that no backdoors were added.
 3. **Bloated Attack Surface:** Modern wallets have browsers, dapp connectors, push messaging, analytics, and many other SDKs. Each feature introduces potential vulnerabilities.
 4. **Network Exposure:** Wallets inherently require internet access, providing a direct channel for malware to access private keys.
-5. **Seed Fatigue:** Users repeatedly import seeds into multiple apps/devices, multiplying the points of failure and increasing the chance of falling for phishing attacks.
+5. **Seed Exposure:** Users repeatedly import seeds into multiple apps/devices, multiplying the points of failure and increasing the chance of falling for phishing attacks.
 
 ### 2. Benefits of a dedicated Signer
 
