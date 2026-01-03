@@ -17,14 +17,14 @@ sealed interface GcipBlock {
 
     val version: UByte
     val status: GcipStatus
-    val nonce: Short
+    val nonce: UShort
     val method: GcipMethod?
     val data: ByteArray?
 
     data class Header(
         val version: UByte,
         val status: GcipStatus,
-        val nonce: Short,
+        val nonce: UShort,
         val method: GcipMethod?,
         val dataLength: Int,
     )
@@ -35,14 +35,14 @@ sealed interface GcipBlock {
     ) : GcipBlock {
         override val version: UByte = header.version
         override val status: GcipStatus = header.status
-        override val nonce: Short = header.nonce
+        override val nonce: UShort = header.nonce
         override val method: GcipMethod = header.method!! // TODO
     }
 
     class Encode(
         override val version: UByte,
         override val status: GcipStatus,
-        override val nonce: Short,
+        override val nonce: UShort,
         override val method: GcipMethod?,
         override val data: ByteArray?,
     ) : GcipBlock
@@ -69,7 +69,7 @@ object GcipCoder {
     private fun Buffer.writeSignature(header: GcipBlock.Header) {
         writeUByte(header.version)
         writeUShort(header.status.value.toUShort())
-        writeShort(header.nonce)
+        writeUShort(header.nonce)
 
         header.method?.let {
             writeByte(header.method.code)
@@ -98,7 +98,7 @@ object GcipCoder {
                 // status
                 val statusCode = buf.readUShort().toInt()
                 var status = GcipStatus.from(statusCode) ?: GcipStatus.UnknownStatus
-                val nonce = buf.readShort()
+                val nonce = buf.readUShort()
 
                 if (version < GcipConfig.MinVersion || version > GcipConfig.ActualVersion) {
                     status = GcipStatus.UnsupportedVersion

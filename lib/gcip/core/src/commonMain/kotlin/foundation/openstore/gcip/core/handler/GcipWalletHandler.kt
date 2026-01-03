@@ -114,6 +114,7 @@ class GcipWalletHandler(
         val data = when (encryption) {
             is Encryption.Handshake.Response,
             is Encryption.Session -> encryptor.decrypt(
+                nonce = block.nonce,
                 eid = encryption.eid,
                 data = message.data,
                 iv = encryptionParams.iv,

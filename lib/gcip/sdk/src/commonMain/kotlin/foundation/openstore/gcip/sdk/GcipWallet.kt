@@ -15,7 +15,6 @@ import foundation.openstore.gcip.core.util.GcipErrorContext
 import foundation.openstore.gcip.core.transport.GcipId
 import foundation.openstore.gcip.core.util.GcipResult
 import foundation.openstore.gcip.core.util.getOrCtx
-import foundation.openstore.gcip.core.util.toUrlBase64Fmt
 import foundation.openstore.gcip.encryption.EcdhProviderDefault
 import foundation.openstore.gcip.encryption.GcipEncryptionFactory
 
@@ -32,26 +31,22 @@ class GcipWallet(
         private val encryption: EcdhEncryptionProvider,
         private val nonceProvider: GcipNonceProvider,
     ) {
-        private val pairs = mutableMapOf<String, KeyPair>()
+        private val pairs = mutableMapOf<UShort, KeyPair>()
         var latestKeyPair: KeyPair? = null
 
-        fun nonce(): Short {
+        fun nonce(): UShort {
             return nonceProvider.generate()
         }
 
-        suspend fun handshakeExchangeKey(): ExchangeKey {
+        suspend fun generateExchangeKey(nonce: UShort): ExchangeKey {
             val pair = encryption.generatePair()
-            pairs[pair.pub.toUrlBase64Fmt()] = pair
+            pairs[nonce] = pair
             latestKeyPair = pair
             return pair.getExchangeKey()
         }
 
-        fun handshakePrivateKey(pubKey: String): ByteArray? {
-            return pairs[pubKey]?.pk
-        }
-
-        fun first(): ByteArray? {
-            return pairs.entries.firstOrNull()?.value?.pk
+        fun handshakePrivateKey(nonce: UShort): KeyPair? {
+            return pairs.remove(nonce)
         }
     }
 
@@ -62,9 +57,8 @@ class GcipWallet(
 
     private val encryption = GcipEncryptionFactory.create(
         object : GcipEncryptionCoder.Delegate {
-            override suspend fun getHandshakePrivateKey(pubKey: ByteArray): ByteArray? {
-//                return storage.handshakePrivateKey(pubKey.toUrlBase64Fmt())
-                return storage.first()
+            override suspend fun popHandshakePrivateKey(nonce: UShort): KeyPair? {
+                return storage.handshakePrivateKey(nonce)
             }
 
             override suspend fun getSessionKey(eid: GcipId): ByteArray? {
@@ -123,13 +117,13 @@ class GcipWallet(
         val request = when (data) {
             is ClientRequestData.Exchange -> ClientRequest.Exchange(
                 data = data,
-                encryption = Encryption.Handshake.Request(storage.handshakeExchangeKey()),
+                encryption = Encryption.Handshake.Request(storage.generateExchangeKey(nonce)),
                 nonce = nonce
             )
             is ClientRequestData.Connect -> ClientRequest.Connect(
                 data = data,
                 encryption = when (val eid = data.eid) {
-                    null -> Encryption.Handshake.Request(storage.handshakeExchangeKey())
+                    null -> Encryption.Handshake.Request(storage.generateExchangeKey(nonce))
                     else -> Encryption.Session(eid)
                 },
                 nonce = nonce,

@@ -19,7 +19,7 @@ import foundation.openstore.gcip.core.util.toUrlBase64Fmt
 class SignerBlock(
     val version: UByte,
     val status: GcipStatus,
-    val nonce: Short,
+    val nonce: UShort,
     val method: GcipMethod,
     val data: ByteArray,
 ) {
@@ -189,36 +189,36 @@ sealed interface ClientRequestData {
 sealed interface ClientRequest {
 
     val encryption: Encryption
-    val nonce: Short
+    val nonce: UShort
 
     class Exchange(
         val data: ClientRequestData.Exchange,
         override val encryption: Encryption.Handshake.Request,
-        override val nonce: Short,
+        override val nonce: UShort,
     ) : ClientRequest, HandshakeRequestEncryption
 
     class Connect(
         val data: ClientRequestData.Connect,
         override val encryption: Encryption.Initiator,
-        override val nonce: Short,
+        override val nonce: UShort,
     ) : ClientRequest, InitialEncryption
 
     class Extend(
         val data: ClientRequestData.Extend,
         override val encryption: Encryption.Session,
-        override val nonce: Short,
+        override val nonce: UShort,
     ) : ClientRequest, SessionEncryption
 
     class Sign(
         val data: ClientRequestData.Sign,
         override val encryption: Encryption.Session,
-        override val nonce: Short,
+        override val nonce: UShort,
     ) : ClientRequest, SessionEncryption
 
     class Disconnect(
         val data: ClientRequestData.Disconnect,
         override val encryption: Encryption.Session,
-        override val nonce: Short,
+        override val nonce: UShort,
     ) : ClientRequest, SessionEncryption
 }
 

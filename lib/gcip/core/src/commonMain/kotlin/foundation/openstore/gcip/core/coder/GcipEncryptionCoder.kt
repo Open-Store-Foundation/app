@@ -9,11 +9,12 @@ import foundation.openstore.gcip.core.transport.GcipEncryptionAlgorithm
 import foundation.openstore.gcip.core.transport.GcipStatus
 import foundation.openstore.gcip.core.transport.GcipId
 import foundation.openstore.gcip.core.util.GcipResult
+import foundation.openstore.gcip.core.util.use
 
 interface GcipEncryptionCoder {
 
     interface Delegate {
-        suspend fun getHandshakePrivateKey(pubKey: ByteArray): ByteArray? = null
+        suspend fun popHandshakePrivateKey(nonce: UShort): KeyPair? = null
         suspend fun getSessionKey(eid: GcipId): ByteArray?
     }
 
@@ -45,6 +46,7 @@ interface GcipEncryptionCoder {
     ): GcipResult<ByteArray>
 
     suspend fun decrypt(
+        nonce: UShort,
         eid: GcipId,
         iv: ByteArray,
         aad: ByteArray,
@@ -53,6 +55,7 @@ interface GcipEncryptionCoder {
     ): GcipResult<ByteArray>
 
     suspend fun decrypt(
+        nonce: UShort,
         eid: GcipId,
         iv: ByteArray,
         aad: ByteArray,
@@ -140,16 +143,18 @@ class GcipEncryptionCoderDefault(
     }
 
     override suspend fun decrypt(
+        nonce: UShort,
         eid: GcipId,
         iv: ByteArray,
         aad: ByteArray,
         data: ByteArray,
         algo: GcipEncryptionAlgorithm,
     ): GcipResult<ByteArray> {
-        return decrypt(eid, iv, aad, data, ekey = null, algo)
+        return decrypt(nonce, eid, iv, aad, data, ekey = null, algo)
     }
 
     override suspend fun decrypt(
+        nonce: UShort,
         eid: GcipId,
         iv: ByteArray,
         aad: ByteArray,
@@ -158,8 +163,8 @@ class GcipEncryptionCoderDefault(
         algo: GcipEncryptionAlgorithm,
     ): GcipResult<ByteArray> {
         val sessionKey = if (ekey != null) {
-            delegate.getHandshakePrivateKey(pubKey = ekey)
-                ?.let { pk -> generateSessionKey(eid = eid, keyPair = KeyPair(pk = pk, pub = ekey)) }
+            delegate.popHandshakePrivateKey(nonce = nonce)
+                ?.use { generateSessionKey(eid = eid, keyPair = KeyPair(pk = it.pk, pub = ekey)) }
                 ?: return GcipResult.err(GcipStatus.UnknownSession)
         } else {
             delegate.getSessionKey(eid)
