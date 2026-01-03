@@ -5,22 +5,16 @@ import kotlin.concurrent.atomics.fetchAndIncrement
 import kotlin.Int
 
 interface GcipNonceProvider {
-    fun generate(): Short
+    fun generate(): UShort
 }
 
 class GcipNonceProviderAtomic(
     initialNonce: Int = 0,
 ) : GcipNonceProvider {
-
-    companion object Companion {
-        const val MAX_NONCE = Short.MAX_VALUE.toInt()
-    }
-
     private val counter = AtomicInt(initialNonce)
 
-    override fun generate(): Short {
-        return (counter.fetchAndIncrement() % MAX_NONCE)
-            .toShort()
-
+    override fun generate(): UShort {
+        return counter.fetchAndIncrement()
+            .toUShort()
     }
 }

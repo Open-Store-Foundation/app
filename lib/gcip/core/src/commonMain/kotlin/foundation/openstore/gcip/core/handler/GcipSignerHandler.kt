@@ -50,12 +50,12 @@ class GcipSignerHandler(
     private fun createError(error: GcipStatus, block: GcipBlock?): ByteArray {
         return createError(
             statusCode = error,
-            nonce = block?.nonce ?: 0,
+            nonce = block?.nonce ?: 0u,
             method = block?.method?.let(messageCoder::requestToResponse),
         )
     }
 
-    private fun createError(statusCode: GcipStatus, nonce: Short, method: GcipMethod?): ByteArray {
+    private fun createError(statusCode: GcipStatus, nonce: UShort, method: GcipMethod?): ByteArray {
         return GcipCoder.encodeBlock(
             header = GcipBlock.Header(
                 version = version,
@@ -128,6 +128,7 @@ class GcipSignerHandler(
                 is Encryption.Session -> {
                     val signature = GcipCoder.headerSignature(block.header)
                     encryptionParams.encryption to encryptor.decrypt(
+                        nonce = block.nonce,
                         eid = encryptionParams.encryption.eid,
                         data = message.data,
                         iv = encryptionParams.iv,
