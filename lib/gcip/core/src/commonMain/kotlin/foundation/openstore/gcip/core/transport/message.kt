@@ -13,11 +13,6 @@ class GcipEncryptionMessage(
     @ByteString
     val eid: GcipId?,
 
-    @SerialName("data")
-    @CborLabel(GcipCborTable.Common.EncryptionMessage.DATA)
-    @ByteString
-    val data: ByteArray,
-
     @SerialName("iv")
     @CborLabel(GcipCborTable.Common.EncryptionMessage.IV)
     @ByteString
@@ -27,4 +22,9 @@ class GcipEncryptionMessage(
     @CborLabel(GcipCborTable.Common.EncryptionMessage.EXCHANGE_KEY)
     @ByteString
     val exchangeKey: ByteArray?,
+
+    @SerialName("data")
+    @CborLabel(GcipCborTable.Common.EncryptionMessage.DATA)
+    @ByteString
+    val data: ByteArray,
 )
