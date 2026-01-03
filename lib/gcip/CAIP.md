@@ -569,38 +569,38 @@ Optional request metadata.
 
 ##### 3.9.0. Status code registry
 
-| Range       | Category           | Code         | Name                            | Description                                                                         |
-|:------------|:-------------------|:-------------|:--------------------------------|:------------------------------------------------------------------------------------|
-| **0-9**     | **Environment**    | `0x00 (0)`   | **Success**                     | Operation completed successfully.                                                   |
-|             |                    | `0x01 (1)`   | **Unknown Error**               | An unexpected error occurred.                                                       |
-|             |                    | `0x02 (2)`   | **Unsafe Device**               | The device environment is considered unsafe (e.g., rooted).                         |
-|             |                    | `0x03 (3)`   | **Should Retry**                | A temporary issue occurred; the client should retry the request (PlatformApiError). |
-|             |                    | `0x04 (4)`   | **Unknown Client**              | The client identifier is unknown or invalid (UnknownCaller).                        |
-|             |                    | `0x05 (5)`   | **User Canceled**               | The user declined the request.                                                      |
-|             |                    | `0x06 (6)`   | **Too Many Requests**           | Each application can send only one sign request at the same time.                   |
-| **32-63**   | **Block**          | `0x20 (32)`  | **Invalid Block**               | The block structure is malformed or too short.                                      |
-|             |                    | `0x21 (33)`  | **Unsupported Version**         | The protocol version is not supported.                                              |
-|             |                    | `0x22 (34)`  | **Unknown Method**              | The method code is not recognized.                                                  |
-|             |                    | `0x23 (35)`  | **Unknown Status**              | The status code is not recognized.                                                  |
-| **64-127**  | **Body / Request** | `0x40 (64)`  | **Encryption Error**            | Failed to decrypt or encrypt the message.                                           |
-|             |                    | `0x41 (65)`  | **Invalid Format**              | The request format is invalid or missing required fields.                           |
-|             |                    | `0x42 (66)`  | **Invalid Method**              | The requested method is not supported or invalid.                                   |
-|             |                    | `0x43 (67)`  | **Unknown Exchange**            | The exchange ID is not recognized (UnknownSession).                                 |
-|             |                    | `0x44 (68)`  | **Unsupported Transport**       | The requested transport method is not supported.                                    |
-|             |                    | `0x45 (69)`  | **Missing Challenge**           | The challenge field is missing when required.                                       |
-|             |                    | `0x46 (70)`  | **Unknown Representation**      | The requested repr type is not supported.                                           |
-|             |                    | `0x47 (71)`  | **Unknown Transform**           | The requested transform type is not supported.                                      |
-|             |                    | `0x48 (72)`  | **Invalid Client Data**         | The provided client data structure is invalid.                                      |
-|             |                    | `0x49 (73)`  | **Unsupported Algorithm**       | The requested algorithm is not supported.                                           |
-| **128-159** | **Origin**         | `0x80 (128)` | **Missing Origin**              | The `clientData.origin` is missing.                                                 |
-|             |                    | `0x81 (129)` | **Invalid Origin**              | The origin format is invalid.                                                       |
-|             |                    | `0x82 (130)` | **Missing Credential Params**   | Required parameters for credential generation are missing.                          |
-|             |                    | `0x83 (131)` | **Unknown Credential Param**    | A provided credential parameter is unknown or unsupported.                          |
-|             |                    | `0x84 (132)` | **Unverified Origin**           | The origin could not be cryptographically verified.                                 |
-| **160-255** | **Interaction**    | `0xA0 (160)` | **Missing Allowed Credentials** | No credentials provided for signing.                                                |
-|             |                    | `0xA1 (161)` | **Unknown Connection**          | The `connectionId` is invalid or expired.                                           |
-|             |                    | `0xA2 (162)` | **Unknown Credential**          | The requested `credId` was not found.                                               |
-|             |                    | `0xA3 (163)` | **Mismatch Origin**             | The origin provided in `clientData` does not match the transport source.            |
+| Range      | Category           | Code         | Name                            | Description                                                                         |
+|:-----------|:-------------------|:-------------|:--------------------------------|:------------------------------------------------------------------------------------|
+| **0-9**    | **Environment**    | `0x00 (0)`   | **Success**                     | Operation completed successfully.                                                   |
+|            |                    | `0x01 (1)`   | **Unknown Error**               | An unexpected error occurred.                                                       |
+|            |                    | `0x02 (2)`   | **Unsafe Device**               | The device environment is considered unsafe (e.g., rooted).                         |
+|            |                    | `0x03 (3)`   | **Should Retry**                | A temporary issue occurred; the client should retry the request (PlatformApiError). |
+|            |                    | `0x04 (4)`   | **Unknown Client**              | The client identifier is unknown or invalid (UnknownCaller).                        |
+|            |                    | `0x05 (5)`   | **User Canceled**               | The user declined the request.                                                      |
+|            |                    | `0x06 (6)`   | **Too Many Requests**           | Each application can send only one sign request at the same time.                   |
+| **32-63**  | **Block**          | `0x20 (32)`  | **Invalid Block**               | The block structure is malformed or too short.                                      |
+|            |                    | `0x21 (33)`  | **Unsupported Version**         | The protocol version is not supported.                                              |
+|            |                    | `0x22 (34)`  | **Unknown Method**              | The method code is not recognized.                                                  |
+|            |                    | `0x23 (35)`  | **Unknown Status**              | The status code is not recognized.                                                  |
+| **64-255** | **Body / Request** | `0x40 (64)`  | **Encryption Error**            | Failed to decrypt or encrypt the message.                                           |
+|            |                    | `0x41 (65)`  | **Invalid Format**              | The request format is invalid or missing required fields.                           |
+|            |                    | `0x42 (66)`  | **Invalid Method**              | The requested method is not supported or invalid.                                   |
+|            |                    | `0x43 (67)`  | **Unknown Exchange**            | The exchange ID is not recognized (UnknownSession).                                 |
+|            |                    | `0x44 (68)`  | **Unsupported Transport**       | The requested transport method is not supported.                                    |
+|            |                    | `0x45 (69)`  | **Missing Challenge**           | The challenge field is missing when required.                                       |
+|            |                    | `0x46 (70)`  | **Unknown Representation**      | The requested repr type is not supported.                                           |
+|            |                    | `0x47 (71)`  | **Unknown Transform**           | The requested transform type is not supported.                                      |
+|            |                    | `0x48 (72)`  | **Invalid Client Data**         | The provided client data structure is invalid.                                      |
+|            |                    | `0x49 (73)`  | **Unsupported Algorithm**       | The requested algorithm is not supported.                                           |
+|            |                    | `0x80 (128)` | **Missing Origin**              | The `clientData.origin` is missing.                                                 |
+|            |                    | `0x81 (129)` | **Invalid Origin**              | The origin format is invalid.                                                       |
+|            |                    | `0x82 (130)` | **Missing Credential Params**   | Required parameters for credential generation are missing.                          |
+|            |                    | `0x83 (131)` | **Unknown Credential Param**    | A provided credential parameter is unknown or unsupported.                          |
+|            |                    | `0x84 (132)` | **Unverified Origin**           | The origin could not be cryptographically verified.                                 |
+|            |                    | `0xA0 (160)` | **Missing Allowed Credentials** | No credentials provided for signing.                                                |
+|            |                    | `0xA1 (161)` | **Unknown Connection**          | The `connectionId` is invalid or expired.                                           |
+|            |                    | `0xA2 (162)` | **Unknown Credential**          | The requested `credId` was not found.                                               |
+|            |                    | `0xA3 (163)` | **Mismatch Origin**             | The origin provided in `clientData` does not match the transport source.            |
 
 ##### 3.9.1. Other Types
 
