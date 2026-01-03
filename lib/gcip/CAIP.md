@@ -1,5 +1,5 @@
 ---
-caip: 401
+caip: UNDEFINED
 title: Generic Credential Interaction Protocol (GCIP)
 discussions-to: https://github.com/ChainAgnostic/CAIPs/pull/
 author: Andrei Chupin
