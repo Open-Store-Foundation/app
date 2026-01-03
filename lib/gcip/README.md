@@ -3,7 +3,7 @@
 A protocol based on FIDO2 WebAuthn principles for delegating private key storage and transaction signing to a separate secure application (Signer App).
 
 ### Specification
-[CAIP-401](CAIP.md)
+[CAIP](CAIP.md)
 
 ## Roadmap
 
