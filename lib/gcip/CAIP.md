@@ -1213,13 +1213,9 @@ against a shared prefix.
 
 
 ## Known implementation
-
-### GCIP - KMP Library.
-https://github.com/Open-Store-Foundation/app/tree/main/lib/gcip
-
-### Signer/Wallet.
-https://github.com/Open-Store-Foundation/app/tree/main/apps/signer
-https://github.com/Open-Store-Foundation/app/tree/main/apps/sample/wallet
+- [GCIP KMP](https://github.com/Open-Store-Foundation/app/tree/main/lib/gcip)
+- [Signer](https://github.com/Open-Store-Foundation/app/tree/main/apps/signer)
+- [Wallet](https://github.com/Open-Store-Foundation/app/tree/main/apps/sample/wallet)
 
 ## Backwards Compatibility
 
@@ -1234,10 +1230,8 @@ Copyright and related rights waived via [CC0](https://creativecommons.org/public
 
 - WebAuthn FIDO2: https://www.w3.org/TR/webauthn-2/
 - COSE ID: https://www.iana.org/assignments/cose/cose.xhtml
--
-CTAP: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html
-- CTAP Hybrid
-  Transports: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid
+- CTAP: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html
+- CTAP Hybrid Transports: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid
 - RFC 8949 (CBOR): https://www.rfc-editor.org/rfc/rfc8949.html
 - RFC 8152 (COSE): https://www.rfc-editor.org/rfc/rfc8152.html
 - RFC 6454 (Web Origin): https://www.rfc-editor.org/rfc/rfc6454.html
