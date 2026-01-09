@@ -1,10 +1,22 @@
-package foundation.openstore.kitten.android
+package foundation.openstore.kitten.android.scopes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
-import kotlinx.coroutines.Runnable
+import foundation.openstore.kitten.android.internal.ViewModelInitializer
 import foundation.openstore.kitten.api.Scope
+import kotlinx.coroutines.Runnable
 
+/**
+ * A scope tied to an Android [ViewModel].
+ *
+ * This scope manages the lifecycle of dependencies injected into a ViewModel.
+ * It uses the [ViewModel.addCloseable] API to ensure cleanup occurs when the ViewModel is cleared.
+ *
+ * @param Delegate The type of the component delegate.
+ * @param Subject The type of the ViewModel.
+ * @param owner The [ViewModelStoreOwner] associated with the ViewModel.
+ * @param init The [ViewModelInitializer] used to intercept creation and setup observation.
+ */
 class ViewModelScope<Delegate : Any, Subject : ViewModel>(
     private var owner: ViewModelStoreOwner? = null,
     init: ViewModelInitializer<Delegate, Subject>

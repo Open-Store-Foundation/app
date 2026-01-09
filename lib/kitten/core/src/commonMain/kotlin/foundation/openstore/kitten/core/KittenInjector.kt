@@ -1,21 +1,10 @@
-package org.openwallet.kitten.core
+package foundation.openstore.kitten.core
 
-import kotlinx.coroutines.Runnable
 import foundation.openstore.kitten.api.Injector
-import foundation.openstore.kitten.api.Scope
 
-internal object KittenScope : Scope<Unit> {
-    override fun isActive(): Boolean {
-        return true
-    }
-
-    override fun owner(): Unit {
-        return Unit
-    }
-
-    override fun register(provider: Runnable): Boolean {
-        return true
-    }
-}
-
+/**
+ * Internal injector used by [DependencyRegistry] and [Kitten] to perform internal dependency operations.
+ *
+ * This object is not exposed to the public API and serves as a bridge for the library internals.
+ */
 internal object KittenInjector : Injector<Unit>()

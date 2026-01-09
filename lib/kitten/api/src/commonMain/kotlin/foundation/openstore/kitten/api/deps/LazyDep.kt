@@ -1,8 +1,18 @@
-package org.openwallet.kitten.core
+package foundation.openstore.kitten.api.deps
 
 import foundation.openstore.kitten.api.SingleThread
 import kotlin.reflect.KProperty
 
+/**
+ * Abstract class representing a lazily initialized dependency.
+ *
+ * This class handles the caching and creation logic for dependencies.
+ * It is designated to work primarily in a single-threaded context as indicated by [SingleThread].
+ *
+ * @param Dep The type of the dependency.
+ * @param Holder The type of the object holding the cached dependency.
+ * @param initializer The function to create the dependency.
+ */
 abstract class LazyDep<Dep : Any, Holder : Any>(
     private val initializer: () -> Dep,
 ) {
@@ -28,6 +38,15 @@ abstract class LazyDep<Dep : Any, Holder : Any>(
     }
 }
 
+/**
+ * A concrete implementation of [LazyDep] where the dependency itself is the holder.
+ *
+ * This implementation keeps a strong reference to the initialized dependency.
+ * "God" likely refers to the fact that it holds the object indefinitely while references exist.
+ *
+ * @param Dep The type of the dependency.
+ * @param initializer The creation function.
+ */
 class LazyDepGod<Dep : Any>(
     initializer: () -> Dep
 ) : LazyDep<Dep, Dep>(initializer) {
