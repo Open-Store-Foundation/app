@@ -10,6 +10,17 @@ Kitten is a dependency injection library suitable for projects of all sizes, fro
 to massive multi-module Kotlin Multiplatform applications. It focuses on simplicity, speed, and safety
 without the overhead of complex code generation or reflection.
 
+## Insanity in the Mobile DI World
+
+Mobile development has evolved, but our dependency injection patterns have stagnated. Kitten challenges the status quo:
+
+1. **IoC is a lie on Mobile**: On Android and iOS, we don't control the OS-level entry points (Activities, ViewControllers). True Inversion of Control is impossible; we ultimately pull dependencies. Most "DI" frameworks are just glorified Service Locators with extra steps.
+2. **Build Time**: Why do we tolerate code generators (KAPT, KSP)? They significantly slow down builds and break incremental compilation. Kitten uses pure Kotlin—zero overhead, instant compilation.
+3. **Reflection**: Runtime reflection is slow, fragile, and dangerous. Why rely on "magic" that crashes at runtime when Kotlin provides powerful, type-safe language features to do it better?
+4. **Implicit Hell**: Annotations like `@Inject` and `@Provides` create "magic" connections. You look at a constructor and have no idea which instance is being delivered. Kitten enforces explicit connections, you can traverse the original dependency definition with a couple of clicks.
+
+Shortly, modern solutions are often too complicated for average projects and too unoptimized for large ones.
+
 ## Key Features
 
 * 🪶 **Lightweight**: The entire library footprint is approximately **5 KB**.
@@ -182,13 +193,13 @@ class Application : Application() {
 
         Kitten.init(
             registry = AppComponentRegistry(this)
-        ) { registry ->
+        ) {
             // Eagerly create components
-            create { registry.appCmp }
-            create { registry.dataComp }
+            create { appCmp }
+            create { dataComp }
 
             // Register injectors
-            register(ModInjector) { registry.fooCmp }
+            register(ModInjector) { fooCmp }
         }
     }
 }
@@ -284,13 +295,13 @@ class AppComponentRegistry(
 // 5. Update Initialization
 Kitten.init(
     registry = AppComponentRegistry(this)
-) { registry ->
-    create { registry.appCmp }
+) {
+    create { appCmp }
 
     register(ModInjector) {
         FooComponentDefault(
             // Pass the factory lambda
-            dataCmp = { data -> registry.dataComponent(data) }
+            dataCmp = { data -> dataComponent(data) }
         )
     }
 }

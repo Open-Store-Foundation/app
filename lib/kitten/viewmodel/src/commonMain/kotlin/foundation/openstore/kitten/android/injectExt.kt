@@ -2,7 +2,7 @@ package foundation.openstore.kitten.android
 
 import androidx.lifecycle.LifecycleOwner
 import foundation.openstore.kitten.android.scopes.LifecycleScope
-import foundation.openstore.kitten.api.SingletonScope
+import foundation.openstore.kitten.api.scope.KittenScope
 import foundation.openstore.kitten.api.Injector
 
 /**
@@ -31,7 +31,7 @@ inline fun <Delegate : Any, reified Subject> Injector<Delegate>.withLifecycle(
 /**
  * Injects a dependency with a global singleton scope.
  *
- * The dependency is created using [SingletonScope] and will live for the application's lifetime.
+ * The dependency is created using [KittenScope] and will live for the application's lifetime.
  *
  * @param Delegate The type of the component or delegate managed by the injector.
  * @param Subject The type of the dependency to create.
@@ -41,7 +41,7 @@ inline fun <Delegate : Any, reified Subject> Injector<Delegate>.withLifecycle(
 inline fun <Delegate : Any, reified Subject> Injector<Delegate>.withSingleton(
     noinline creator: Delegate.() -> Subject
 ): Subject {
-    val subject = injectWith(SingletonScope) {
+    val subject = injectWith(KittenScope) {
         creator(this)
     }
 

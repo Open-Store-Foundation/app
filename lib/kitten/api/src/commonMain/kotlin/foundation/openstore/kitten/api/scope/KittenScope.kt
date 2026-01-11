@@ -1,4 +1,4 @@
-package foundation.openstore.kitten.api
+package foundation.openstore.kitten.api.scope
 
 import kotlinx.coroutines.Runnable
 
@@ -8,7 +8,7 @@ import kotlinx.coroutines.Runnable
  * This scope is always active and never destroyed. It is used for dependencies that should live
  * for the entire duration of the application.
  */
-object SingletonScope : Scope<Unit> {
+object KittenScope : Scope<Unit> {
     override fun isActive(): Boolean {
         return true
     }
@@ -18,7 +18,7 @@ object SingletonScope : Scope<Unit> {
         return
     }
 
-    override fun register(provider: Runnable): Boolean {
+    override fun register(destructor: Runnable): Boolean {
         return true
     }
 }

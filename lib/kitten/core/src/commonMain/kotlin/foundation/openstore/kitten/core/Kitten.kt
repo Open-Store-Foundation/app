@@ -20,15 +20,16 @@ object Kitten {
      */
     fun <Provider : ComponentRegistry> init(
         registry: Provider,
-        applier: DependencyRegistry<Provider>.(Provider) -> Unit,
+        throwOnReinit: Boolean = false,
+        applier: DependencyRegistry<Provider>.() -> Unit,
     ) {
-        if (Kitten.registry != null) {
-            return
+        if (Kitten.registry != null && throwOnReinit) {
+            throw IllegalStateException("Kitten is already initialized!")
         }
 
         Kitten.registry = DependencyRegistry(registry = registry)
             .apply {
-                applier(registry)
+                applier()
             }
     }
 }

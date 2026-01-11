@@ -1,5 +1,6 @@
 package foundation.openstore.kitten.api
 
+import foundation.openstore.kitten.api.scope.Scope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.SynchronizedObject
 import kotlinx.coroutines.internal.synchronized
@@ -22,19 +23,19 @@ abstract class LifecycleBorrower {
      * It locks the owner scope before execution and unlocks it afterwards.
      *
      * @param Subject The return type of the factory block.
-     * @param owner The scope owner requesting access.
+     * @param scope The scope owner requesting access.
      * @param factory The block of code to execute.
      * @return The result of the factory block.
      */
     @SingleThread
     internal fun <Subject> borrow(
-        owner: Scope<out Any>,
+        scope: Scope<out Any>,
         factory: () -> Subject
     ): Subject {
         synchronized(lock) {
-            lock(owner)
+            lock(scope)
             val obj = factory()
-            unlock(owner)
+            unlock(scope)
 
             return obj
         }
@@ -43,16 +44,16 @@ abstract class LifecycleBorrower {
     /**
      * Locks the resources associated with the given owner.
      *
-     * @param owner The scope owner to lock.
+     * @param scope The scope owner to lock.
      */
     @SingleThread
-    protected abstract fun lock(owner: Scope<out Any>)
+    protected abstract fun lock(scope: Scope<out Any>)
 
     /**
      * Unlocks the resources associated with the given owner.
      *
-     * @param owner The scope owner to unlock.
+     * @param scope The scope owner to unlock.
      */
     @SingleThread
-    protected abstract fun unlock(owner: Scope<out Any>)
+    protected abstract fun unlock(scope: Scope<out Any>)
 }

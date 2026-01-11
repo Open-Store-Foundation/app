@@ -1,9 +1,10 @@
 package foundation.openstore.kitten.android.scopes
 
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import foundation.openstore.kitten.android.internal.ViewModelInitializer
-import foundation.openstore.kitten.api.Scope
+import foundation.openstore.kitten.api.scope.Scope
 import kotlinx.coroutines.Runnable
 
 /**
@@ -23,46 +24,59 @@ class ViewModelScope<Delegate : Any, Subject : ViewModel>(
 ) : Scope<ViewModel> {
 
     private var isActive = true
-    private var vm: Subject? = null
-    private var closable: AutoCloseable? = null
+    private var destructors: MutableList<Runnable> = ArrayList(2)
 
     init {
         init.observe { viewModel ->
-            val safeClosable = closable
-            if (safeClosable != null) {
-                viewModel.addCloseable(safeClosable)
-                closable = null
-            } else {
-                vm = viewModel
-            }
+            viewModel.addCloseable(
+                object : AutoCloseable {
+                    override fun close() {
+                        isActive = false
+                        destructors.fastForEach { it.run() }
+                        owner = null
+                    }
+                }
+            )
         }
     }
 
+    /**
+     * Checks if the ViewModel scope is currently active.
+     *
+     * @return `true` if the ViewModel has not been cleared yet, `false` otherwise.
+     */
     override fun isActive(): Boolean {
         return isActive
     }
 
-    override fun owner(): Any? {
-        return owner?.viewModelStore
+    /**
+     * Returns the [androidx.lifecycle.ViewModelStore] associated with this scope.
+     *
+     * @throws IllegalStateException if the scope is not active or the owner is destroyed.
+     */
+    override fun owner(): Any {
+        if (!isActive) {
+            throw IllegalStateException("Scope is not active")
+        }
+
+        val store = owner?.viewModelStore
+            ?: throw IllegalStateException("Scope owner is already destroyed")
+
+        return store
     }
 
-    override fun register(provider: Runnable): Boolean {
-        val safeVm = vm
-        val closable = object : AutoCloseable {
-            override fun close() {
-                provider.run()
-                isActive = false
-                owner = null
-            }
+    /**
+     * Registers a destructor to be executed when the ViewModel is cleared.
+     *
+     * @param destructor The [Runnable] to execute during cleanup.
+     * @return `true` if the destructor was successfully registered, `false` otherwise.
+     */
+    override fun register(destructor: Runnable): Boolean {
+        if (!isActive) {
+            return false
         }
 
-        if (safeVm != null) {
-            safeVm.addCloseable(closable)
-            vm = null
-        } else {
-            this.closable = closable
-        }
-
+        this.destructors.add(destructor)
         return true
     }
 }

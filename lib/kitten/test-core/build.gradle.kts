@@ -7,13 +7,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.lib.kitten.api)
-            }
-        }
-
-
-        commonTest {
-            dependencies {
-                implementation(projects.lib.kitten.testCore)
+                implementation(projects.lib.kitten.core)
             }
         }
     }

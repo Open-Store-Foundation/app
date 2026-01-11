@@ -11,11 +11,14 @@ kotlin {
                 implementation(libs.jetbrains.compose.viewmodel)
             }
         }
+
+        commonTest {
+            dependencies {
+                implementation(projects.lib.kitten.testCore)
+                implementation(projects.lib.kitten.core)
+
+                implementation(libs.jetbrains.compose.lifecycle)
+            }
+        }
     }
 }
-
-//android {
-//    buildFeatures {
-//        compose = true
-//    }
-//}

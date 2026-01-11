@@ -1,5 +1,7 @@
 package foundation.openstore.kitten.api
 
+import foundation.openstore.kitten.api.scope.Scope
+
 /**
  * Base class for all injectors in the Kitten Dependency Injection library.
  *
@@ -38,19 +40,19 @@ open class Injector<Delegate : Any> {
     }
 
     /**
-     * Injects dependencies into a context defined by the [owner].
+     * Injects dependencies into a context defined by the [scope].
      *
      * This method allows temporary access to the delegate's dependencies within the provided block.
      * The lifecycle of the access is managed by the [LifecycleBorrower].
      *
      * @param Subject The type of the result produced by the factory block.
-     * @param owner The scope owner requesting the injection.
+     * @param scope The scope owner requesting the injection.
      * @param factory A function block where the dependencies are accessed and used.
      * @return The result of the factory block.
      */
     @SingleThread
-    fun <Subject> injectWith(owner: Scope<out Any>, factory: Delegate.() -> Subject): Subject {
-        return borrower.borrow(owner) {
+    fun <Subject> injectWith(scope: Scope<out Any>, factory: Delegate.() -> Subject): Subject {
+        return borrower.borrow(scope) {
             factory.invoke(delegate.invoke())
         }
     }

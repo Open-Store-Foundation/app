@@ -3,7 +3,7 @@ package foundation.openstore.kitten.core
 import foundation.openstore.kitten.api.Component
 import foundation.openstore.kitten.api.Injector
 import foundation.openstore.kitten.api.SingleThread
-import foundation.openstore.kitten.api.SingletonScope
+import foundation.openstore.kitten.api.scope.KittenScope
 
 /**
  * Manages the initialization and registration of dependencies within the [Kitten] system.
@@ -35,8 +35,8 @@ class DependencyRegistry<Registry : ComponentRegistry>(
      * @param provider The function to create the component.
      */
     @SingleThread
-    fun <Cmp : Component> create(provider: () -> Cmp) {
-        KittenInjector.injectWith(SingletonScope) { provider() }
+    fun <Cmp : Component> create(provider: Registry.() -> Cmp) {
+        KittenInjector.injectWith(KittenScope) { provider(registry) }
     }
 
     /**
@@ -45,13 +45,13 @@ class DependencyRegistry<Registry : ComponentRegistry>(
      * This connects a module's injector object to the central registry.
      *
      * @param Cmp The type of the component.
-     * @param initializer The injector to register.
+     * @param injector The injector to register.
      * @param provider A function that retrieves the component instance from the registry.
      */
     @SingleThread
-    fun <Cmp : Component> register(initializer: Injector<Cmp>, provider: () -> Cmp) {
-        initializer.init(
-            delegate = { provider.invoke() },
+    fun <Cmp : Component> register(injector: Injector<Cmp>, provider: Registry.() -> Cmp) {
+        injector.init(
+            delegate = { provider.invoke(registry) },
             borrower = registry
         )
     }
