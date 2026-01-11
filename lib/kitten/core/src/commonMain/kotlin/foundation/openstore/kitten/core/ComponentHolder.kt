@@ -12,12 +12,13 @@ import foundation.openstore.kitten.api.Component
  * @param initializer The function that provides the component instance (e.g., from a builder).
  */
 class ComponentHolder<out T : Component>(
-    internal val initializer: () -> T
+    internal val key: Any,
+    internal val initializer: (Any) -> T
 ) {
     /**
      * Delegate operator to retrieve the component instance.
      */
     operator fun getValue(thisRef: Any?, property: Any?) : T {
-        return initializer()
+        return initializer(key)
     }
 }

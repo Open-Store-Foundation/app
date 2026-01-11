@@ -1,6 +1,6 @@
 package foundation.openstore.kitten.core
 
-import foundation.openstore.kitten.api.Scope
+import foundation.openstore.kitten.api.scope.Scope
 import foundation.openstore.kitten.api.SingleThread
 
 /**
@@ -27,7 +27,11 @@ class ComponentBuilder<Component> {
      * @return The singleton component instance.
      */
     @SingleThread
-    fun singleton(scope: Scope<out Any>, key: Any? = null, builder: () -> Component): Component {
+    fun singleton(
+        scope: Scope<out Any>,
+        key: Any? = null,
+        builder: () -> Component,
+    ): Component {
         val ref = findComponent(key)
 
         if (ref != null) {
@@ -36,7 +40,7 @@ class ComponentBuilder<Component> {
 
         val owner = scope.owner()
         val new = createNew(owner, scope, key, builder)
-        registerScope(owner, scope, key)
+        registerScope(key, owner, scope)
 
         return new
     }
@@ -53,11 +57,15 @@ class ComponentBuilder<Component> {
      * @return The shared component instance.
      */
     @SingleThread
-    fun shared(scope: Scope<out Any>, key: Any? = null, builder: () -> Component): Component {
+    fun shared(
+        scope: Scope<out Any>,
+        key: Any? = null,
+        builder: () -> Component,
+    ): Component {
         val owner = scope.owner()
 
-        val ref = owner?.let {
-            findComponent(key) { componentsMap, existingComponent ->
+        val ref = findComponent(key) { componentsMap, existingComponent ->
+            if (scope.isActive()) {
                 componentsMap[owner] = existingComponent
             }
         }
@@ -67,13 +75,52 @@ class ComponentBuilder<Component> {
         }
 
         val new = createNew(owner, scope, key, builder)
-        registerScope(owner, scope, key)
+        registerScope(key, owner, scope)
 
         return new
     }
 
-    private fun findComponent(key: Any? = null, apply: ((HashMap<Any, Component>, Component) -> Unit)? = null): Component? {
+    /**
+     * Retrieves or creates a scoped instance of a component.
+     *
+     * A scoped component is similar to a shared component in that it is tied to an owner.
+     * However, it specifically looks for an existing component associated with the owner provided by the scope.
+     *
+     * @param scope The scope providing the owner.
+     * @param key An optional key to distinguish component types.
+     * @param builder A function to create the component if it doesn't exist.
+     * @return The scoped component instance.
+     */
+    @SingleThread
+    fun scoped(
+        scope: Scope<out Any>,
+        key: Any? = null,
+        builder: () -> Component,
+    ): Component {
+        val owner = scope.owner()
+
+        val ref = findComponent(key, owner)
+
+        if (ref != null) {
+            return ref
+        }
+
+        val new = createNew(owner, scope, key, builder)
+        registerScope(key, owner, scope)
+
+        return new
+    }
+
+    private fun findComponent(
+        key: Any? = null,
+        owner: Any? = null,
+        apply: ((HashMap<Any, Component>, Component) -> Unit)? = null,
+    ): Component? {
         return componentsMultimap[key]?.let { componentsMap ->
+            if (owner != null) {
+                return@let componentsMap[owner]
+            }
+
             val existingComponent = componentsMap.values.firstOrNull()
                 ?: return@let null
 
@@ -83,28 +130,30 @@ class ComponentBuilder<Component> {
         }
     }
 
-    private fun createNew(owner: Any?, scope: Scope<out Any>, key: Any? = null, builder: () -> Component): Component {
+    private fun createNew(
+        owner: Any,
+        scope: Scope<out Any>, key: Any? = null,
+        builder: () -> Component,
+    ): Component {
         val newValue = builder.invoke()
 
         componentsMultimap[key] = HashMap<Any, Component>()
             .apply {
-                if (scope.isActive() && owner != null) {
+                if (scope.isActive()) {
                     set(owner, newValue)
-                } else {
-                    // TODO log
                 }
             }
 
         return newValue
     }
 
-    private fun registerScope(owner: Any?, scope: Scope<out Any>, key: Any?) {
+    private fun registerScope(
+        key: Any?,
+        owner: Any,
+        scope: Scope<out Any>,
+    ) {
         scope.register {
-            if (owner != null) {
-                componentsMultimap[key]?.remove(owner)
-            } else {
-                // TODO log
-            }
+            componentsMultimap[key]?.remove(owner)
         }
     }
 }

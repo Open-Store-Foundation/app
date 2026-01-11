@@ -1,4 +1,4 @@
-package foundation.openstore.kitten.api
+package foundation.openstore.kitten.api.scope
 
 import kotlinx.coroutines.Runnable
 
@@ -23,13 +23,13 @@ interface Scope<T> {
      *
      * @return The owner object, or `null` if the reference has been cleared or is not available.
      */
-    fun owner() : Any?
+    fun owner() : Any
 
     /**
      * Registers a callback to be executed when the scope is destroyed or invalid.
      *
-     * @param provider The [Runnable] to execute upon scope destruction.
+     * @param destructor The [Runnable] to execute upon scope destruction.
      * @return `true` if the callback was successfully registered, `false` if the scope is already inactive.
      */
-    fun register(provider: Runnable): Boolean
+    fun register(destructor: Runnable): Boolean
 }

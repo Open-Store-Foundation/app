@@ -96,6 +96,41 @@ inline fun <Delegate : Any, reified Subject : ViewModel> Injector<Delegate>.with
 	)
 }
 
+context(owner: ViewModelStoreOwner)
+inline fun <Delegate : Any, reified Subject : ViewModel> Injector<Delegate>.withStatelessViewModel(
+    key: String? = null,
+    noinline creator: Delegate.(CreationExtras) -> Subject
+): Subject {
+    val clazz = Subject::class
+
+    val factory = viewModelFactory {
+        initializer {
+            val init = ViewModelInitializer<Delegate, Subject> {
+                creator(it, this@initializer)
+            }
+
+            injectWith(ViewModelScope(owner, init)) {
+                init.create(this)
+            }
+        }
+    }
+
+    val extras = if (owner is HasDefaultViewModelProviderFactory) {
+        owner.defaultViewModelCreationExtras
+    } else {
+        CreationExtras.Empty
+    }
+
+    val provider = ViewModelProvider.create(owner, factory, extras)
+
+
+    if (key != null) {
+        return provider[key, clazz]
+    }
+
+    return provider[clazz]
+}
+
 /**
  * Creates and injects a ViewModel from a non-Composable context (e.g., Fragment or Activity).
  *
