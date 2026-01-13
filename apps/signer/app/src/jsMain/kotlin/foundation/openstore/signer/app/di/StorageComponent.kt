@@ -4,7 +4,7 @@ import com.openstore.app.store.common.store.StorageModule
 import foundation.openstore.signer.app.data.DriverFactory
 import foundation.openstore.signer.app.data.createDatabase
 import foundation.openstore.signer.app.data.dao.AppDatabase
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.api.deps.depLazy
 
 class WebStorageComponent : StorageComponent {
 

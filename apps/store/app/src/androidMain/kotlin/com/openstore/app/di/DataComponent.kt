@@ -43,7 +43,7 @@ import com.openstore.app.installer.InstallationRequestQueue
 import com.openstore.app.installer.MutableInstallationMetaRepo
 import foundation.openstore.core.crypto.NativeSignatureVerifier
 import foundation.openstore.kitten.api.Component
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.api.deps.depLazy
 
 interface DataComponent : Component {
     val artifactRepo: ArtifactRepo

@@ -46,9 +46,3 @@ fun CharArray.toByteArray(): ByteArray {
 
     return result
 }
-
-
-
-
-
-

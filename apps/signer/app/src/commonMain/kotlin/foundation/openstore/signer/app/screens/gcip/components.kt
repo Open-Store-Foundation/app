@@ -45,6 +45,7 @@ fun ConfirmationHeader(
         imageVector = vectorResource(Res.drawable.firebox),
         contentDescription = null,
     )
+
     Spacer(Modifier.height(2.dp))
 
     Column(

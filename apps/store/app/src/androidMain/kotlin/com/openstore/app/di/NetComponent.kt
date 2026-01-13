@@ -24,7 +24,6 @@ import com.openstore.app.core.net.EtagStorage
 import com.openstore.app.core.net.NetConfig
 import com.openstore.app.core.net.NetModule
 import com.openstore.app.core.net.NetworkProvider
-import com.openstore.app.core.net.NetworkProviderLauncher
 import com.openstore.app.data.node.AppNodes
 import com.openstore.app.data.node.CustomNodeType
 import com.openstore.app.data.node.NodeRepo
@@ -32,7 +31,7 @@ import com.openstore.app.data.node.NodeRepoStorage
 import com.openstore.app.di.DataComponentDefault.Companion.NODES_STORAGE
 import foundation.openstore.kitten.api.Component
 import io.ktor.client.HttpClientConfig
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.api.deps.depLazy
 
 interface NetComponent : Component {
     val baseGfHost: String

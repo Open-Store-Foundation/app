@@ -31,7 +31,6 @@ import com.openstore.app.ui.component.AvoirAlertDialog
 import com.openstore.app.ui.component.AvoirScaffold
 import com.openstore.app.ui.component.AvoirToolbar
 import com.openstore.app.ui.lifecycle.OnCreate
-import foundation.openstore.gcip.core.transport.GcipId
 import foundation.openstore.kitten.android.withViewModel
 import foundation.openstore.signer.app.Router
 import foundation.openstore.signer.app.data.wallet.PendingAction

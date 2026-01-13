@@ -14,7 +14,7 @@ class GcipNonceProviderAtomic(
     private val counter = AtomicInt(initialNonce)
 
     override fun generate(): UShort {
-        return counter.fetchAndIncrement()
+        return counter.fetchAndIncrement() // TODO save state
             .toUShort()
     }
 }

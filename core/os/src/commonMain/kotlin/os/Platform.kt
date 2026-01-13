@@ -4,6 +4,7 @@ enum class Platform {
     Android,
     IOS,
     IPad,
+    Web,
     Extension,
     Windows,
     Linux,

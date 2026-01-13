@@ -44,7 +44,7 @@ import com.openstore.app.ui.lifecycle.OnResume
 import com.openstore.app.ui.workround.AvoidSecureScreen
 import com.openstore.app.ui.workround.rememberAvoirSheetState
 import com.openstore.app.ui.workround.textLines
-import foundation.openstore.kitten.android.withStatelessViewModel
+import foundation.openstore.kitten.android.withViewModel
 import foundation.openstore.signer.app.data.passcode.SecureStore
 import foundation.openstore.signer.app.generated.resources.CreatePasscode
 import foundation.openstore.signer.app.generated.resources.DeviceNotSecure
@@ -156,7 +156,7 @@ private fun PinBottom(
     onSuccess: (SecureStore) -> Unit,
     onDismiss: () -> Unit,
 ) = AvoidSecureScreen {
-    val viewModel: PinFeature = SignerInjector.withStatelessViewModel { providePinFeature(type) }
+    val viewModel: PinFeature = SignerInjector.withViewModel { providePinFeature(type) }
     val coroutineScope = rememberCoroutineScope()
 
     OnResume {

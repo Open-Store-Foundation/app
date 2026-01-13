@@ -3,39 +3,26 @@ package com.openstore.app.installer.core
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import foundation.openstore.kitten.api.Scope
-import kotlinx.coroutines.Runnable
+import com.openstore.app.log.L
+import foundation.openstore.kitten.android.scopes.OwnedScope
 
 abstract class ScopedBroadcastReceiver : BroadcastReceiver() {
 
-    private var observer: Runnable? = null
-    private var isActive = true
-
-    protected val scope = object : Scope<BroadcastReceiver> {
-        override fun isActive(): Boolean {
-            return isActive
-        }
-
-        override fun owner(): Any? {
-            return this@ScopedBroadcastReceiver
-        }
-
-        override fun register(provider: Runnable): Boolean {
-            if (!isActive) {
-                provider.run()
-            } else {
-                observer = provider
-            }
-
-            return true
-        }
-    }
+    protected val scope = OwnedScope(
+        owner = this,
+        isActive = false
+    )
 
     final override fun onReceive(context: Context, intent: Intent) {
-        isActive = true
-        onHandleReceive(context, intent)
-        isActive = false
-        observer?.run()
+        scope.create()
+        try {
+            onHandleReceive(context, intent)
+        } catch (e: Throwable) {
+            L.d(e)
+            throw e
+        } finally {
+            scope.destroy()
+        }
     }
 
     abstract fun onHandleReceive(context: Context, intent: Intent)

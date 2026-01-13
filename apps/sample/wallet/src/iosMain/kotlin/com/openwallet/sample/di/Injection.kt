@@ -3,29 +3,28 @@ package com.openwallet.sample.di
 import com.openwallet.sample.MainViewModel
 import com.openwallet.sample.WalletRepository
 import com.russhwolf.settings.NSUserDefaultsSettings
-import org.openwallet.kitten.core.ComponentProvider
-import org.openwallet.kitten.core.Kitten
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.core.ComponentRegistry
+import foundation.openstore.kitten.core.Kitten
+import foundation.openstore.kitten.api.deps.depLazy
 import platform.Foundation.NSUserDefaults
 
 object WalletInjection {
     fun init() {
         Kitten.init(
-            provider = WalletComponentProvider()
-        ) { deps ->
-            register(WalletInjector) { deps.walletCmp }
+            registry = WalletComponentRegistry()
+        ) {
+            register(WalletInjector) { walletCmp }
         }
     }
 }
 
-class WalletComponentProvider : ComponentProvider() {
+class WalletComponentRegistry : ComponentRegistry() {
 
     private val repository: WalletRepository by depLazy {
         WalletRepository(NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults))
     }
 
-    val walletCmp: WalletComponent
-        get() = multiOwner {
+    val walletCmp: WalletComponent by shared<WalletComponent> {
             object : WalletComponent {
                 override fun provideMainViewModel(): MainViewModel {
                     return MainViewModel(repository)
@@ -33,6 +32,7 @@ class WalletComponentProvider : ComponentProvider() {
             }
         }
 }
+
 
 
 

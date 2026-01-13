@@ -30,6 +30,8 @@ project.afterEvaluate {
                 include("**/*.js")
                 include("**/*.html")
                 include("**/*.json")
+                include("**/*.xml")
+                include("**/*.ttf")
                 include("composeResources")
             }
 

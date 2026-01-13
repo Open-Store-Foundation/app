@@ -17,7 +17,6 @@ import com.openstore.app.installer.handlers.ApkInstallationManager
 import com.openstore.app.installer.InstallerComponent
 import com.openstore.app.installer.InstallerInjector
 import com.openstore.app.installer.ServiceController
-import com.openstore.app.log.L
 import com.openstore.app.screens.StoreComponent
 import com.openstore.app.screens.StoreInjector
 import com.openstore.app.screens.categories.CategoriesFeature
@@ -35,55 +34,52 @@ import com.openstore.app.screens.report.ReportSubmitFeature
 import com.openstore.app.screens.review.ObjReviewFeature
 import com.openstore.app.screens.search.SearchFeature
 import com.openstore.app.screens.settings.SettingsFeature
-import org.openwallet.kitten.core.ComponentProvider
-import org.openwallet.kitten.core.Kitten
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.api.deps.depLazy
+import foundation.openstore.kitten.core.ComponentRegistry
+import foundation.openstore.kitten.core.Kitten
 
 object OpenStoreInjection {
     fun init(app: Application) {
         Kitten.init(
-            provider = OpenStoreComponentProvider(app)
-        ) { deps ->
-            create { deps.netCmp }
-            create { deps.dataCmp }
+            registry = OpenStoreComponentRegistry(app)
+        ) { 
+            create { netCmp }
+            create { dataCmp }
 
-            register(AppInjector) { deps.appCmp }
-            register(ActivityInjector) { deps.mainCmp }
-            register(CatalogInjector) { deps.catalogCmp }
-            register(StoreInjector) { deps.storeCmp }
-            register(InstallerInjector) { deps.installerCmp }
+            register(AppInjector) { appCmp }
+            register(ActivityInjector) { mainCmp }
+            register(CatalogInjector) { catalogCmp }
+            register(StoreInjector) { storeCmp }
+            register(InstallerInjector) { installerCmp }
         }
     }
 }
 
-class OpenStoreComponentProvider(
+class OpenStoreComponentRegistry(
     private val app: Application
-) : ComponentProvider() {
+) : ComponentRegistry() {
 
-    val mdlCmp: StorageComponent
-        get() = singleOwner {
-            ModulesComponentDefault(app)
-        }
+    val mdlCmp: StorageComponent by singleton {
+        ModulesComponentDefault(app)
+    }
 
-    val netCmp: NetComponent
-        get() = singleOwner {
-            NetComponentDefault(app = app, appNodes = AppConfig.Nodes, modules = mdlCmp)
-        }
+    val netCmp: NetComponent by singleton {
+        NetComponentDefault(app = app, appNodes = AppConfig.Nodes, modules = mdlCmp)
+    }
 
-    val dataCmp: DataComponent
-        get() = singleOwner {
-            DataComponentDefault(
-                app = app,
-                platformId = PlatformId.ANDROID,
-                caip2Chain = AppConfig.Env.Caip2,
-                storeAddress = AppConfig.Env.StoreAddress,
-                oracleAddress = AppConfig.Env.OracleAddress,
-                netComponent = netCmp,
-                storageComponent = mdlCmp
-            )
-        }
+    val dataCmp: DataComponent by singleton {
+        DataComponentDefault(
+            app = app,
+            platformId = PlatformId.ANDROID,
+            caip2Chain = AppConfig.Env.Caip2,
+            storeAddress = AppConfig.Env.StoreAddress,
+            oracleAddress = AppConfig.Env.OracleAddress,
+            netComponent = netCmp,
+            storageComponent = mdlCmp
+        )
+    }
 
-    val appCmp: AppComponent by depLazy {
+    val appCmp: AppComponent by singleton {
         object : AppComponent {
             private val apkInstallationManager by depLazy {
                 ApkInstallationManager(app, metaRepo = dataCmp.installationMetaRepo)
@@ -100,132 +96,132 @@ class OpenStoreComponentProvider(
         }
     }
 
-    val installerCmp: InstallerComponent
-        get() = multiOwner<InstallerComponent> {
-            object : InstallerComponent {
-                override fun provideServiceController(): ServiceController {
-                    return appCmp.installerController
-                }
+    val installerCmp: InstallerComponent by shared<InstallerComponent> {
+        object : InstallerComponent {
+            override fun provideServiceController(): ServiceController {
+                return appCmp.installerController
             }
         }
+    }
 
-    val mainCmp: MainComponent
-        get() = multiOwner<MainComponent> {
-            object : MainComponent {
-                override fun provideMainViewModel(): MainViewModel = MainViewModel(
-                    installationRepo = dataCmp.installationRequestRepo,
+    val mainCmp: MainComponent by shared<MainComponent> {
+        object : MainComponent {
+            override fun provideMainViewModel(): MainViewModel = MainViewModel(
+                installationRepo = dataCmp.installationRequestRepo,
+                settingsRepo = dataCmp.settingsRepo,
+            )
+        }
+    }
+
+    val catalogCmp: CatalogComponent by shared<CatalogComponent> {
+        object : CatalogComponent {
+            private val catalogRepo: CatalogRepo by depLazy { CatalogRepoDefault() }
+            override fun provideHomeFeature(): CatalogHomeFeature = CatalogHomeFeature(catalogRepo)
+        }
+    }
+
+    val storeCmp: StoreComponent by shared<StoreComponent> {
+        object : StoreComponent {
+            override fun provideHomeFeature(): HomeFeature = HomeFeature()
+
+            override fun provideCategoriesFeature(
+                data: Router.Categories,
+            ): CategoriesFeature {
+                return CategoriesFeature(data)
+            }
+
+            override fun provideObjDetailsFeature(
+                id: ObjectId
+            ): ObjDetailsFeature {
+                return ObjDetailsFeature(
+                    data = id,
+                    objRepo = dataCmp.objRepo,
+                    artifactService = dataCmp.artifactService,
+                    appChainService = dataCmp.appChainService,
+                    requestRepo = dataCmp.installationRequestRepo,
                     settingsRepo = dataCmp.settingsRepo,
                 )
             }
-        }
 
-    val catalogCmp: CatalogComponent
-        get() = multiOwner<CatalogComponent> {
-            object : CatalogComponent {
-                private val catalogRepo: CatalogRepo by depLazy { CatalogRepoDefault() }
-                override fun provideHomeFeature(): CatalogHomeFeature = CatalogHomeFeature(catalogRepo)
+            override fun provideSearchFeature(): SearchFeature {
+                return SearchFeature(
+                    objRepo = dataCmp.objRepo,
+                    appChainService = dataCmp.appChainService
+                )
+            }
+
+            override fun provideFeedFeature(): FeedFeature {
+                return FeedFeature(
+                    interactor = dataCmp.storeInteractor
+                )
+            }
+
+            private val chartFeedInteractor by depLazy {
+                ChartFeedInteractorDefault(dataCmp.objRepo, netCmp.networkProvider)
+            }
+
+            override fun provideChartFeedFeature(): ChartFeedFeature {
+                return ChartFeedFeature(
+                    chartFeed = chartFeedInteractor,
+                    respRepo = dataCmp.responseRepo,
+                )
+            }
+
+            override fun provideObjListFeature(
+                data: Router.Objects,
+            ): ObjListFeature {
+                return ObjListFeature(
+                    data = data,
+                    objRepo = dataCmp.objRepo
+                )
+            }
+
+            override fun provideReviewFeature(): ObjReviewFeature {
+                return ObjReviewFeature()
+            }
+
+            override fun provideReportCategoryFeature(data: Router.ReportCategory): ReportCategoryFeature {
+                return ReportCategoryFeature(data.objAddress, dataCmp.reportRepo)
+            }
+
+            override fun provideReportSubcategoryFeature(data: Router.ReportSubcategory): ReportSubcategoryFeature {
+                return ReportSubcategoryFeature(
+                    data.objAddress,
+                    data.categoryId,
+                    dataCmp.reportRepo
+                )
+            }
+
+            override fun provideReportSummaryFeature(data: Router.ReportSubmit): ReportSubmitFeature {
+                return ReportSubmitFeature(
+                    data.objAddress,
+                    data.categoryId,
+                    data.subcategoryId,
+                    dataCmp.reportService
+                )
+            }
+
+            override fun provideSettingsFeature(): SettingsFeature {
+                return SettingsFeature(
+                    settingsRepo = dataCmp.settingsRepo
+                )
+            }
+
+            override fun provideManageAppsFeature(): ManageAppsFeature {
+                return ManageAppsFeature(
+                    installationRepo = dataCmp.installationRequestRepo,
+                    appUpdate = dataCmp.appUpdateInteractor
+                )
+            }
+
+            override fun provideCustomNodeFeature(): CustomNodeFeature {
+                return CustomNodeFeature(netCmp.nodeRepo)
+            }
+
+            override fun provideAddCustomNodeFeature(type: CustomNodeType): AddCustomNodeFeature {
+                return AddCustomNodeFeature(type, netCmp.nodeRepo)
             }
         }
-
-    val storeCmp: StoreComponent
-        get() = multiOwner<StoreComponent> {
-            object : StoreComponent {
-                override fun provideHomeFeature(): HomeFeature = HomeFeature()
-
-                override fun provideCategoriesFeature(
-                    data: Router.Categories,
-                ): CategoriesFeature {
-                    return CategoriesFeature(data)
-                }
-
-                override fun provideObjDetailsFeature(
-                    id: ObjectId
-                ): ObjDetailsFeature {
-                    return ObjDetailsFeature(
-                        data = id,
-                        objRepo = dataCmp.objRepo,
-                        artifactService = dataCmp.artifactService,
-                        appChainService = dataCmp.appChainService,
-                        requestRepo = dataCmp.installationRequestRepo,
-                        settingsRepo = dataCmp.settingsRepo,
-                    )
-                }
-
-                override fun provideSearchFeature(): SearchFeature {
-                    return SearchFeature(
-                        objRepo = dataCmp.objRepo,
-                        appChainService = dataCmp.appChainService
-                    )
-                }
-
-                override fun provideFeedFeature(): FeedFeature {
-                    return FeedFeature(
-                        interactor = dataCmp.storeInteractor
-                    )
-                }
-
-                private val chartFeedInteractor by depLazy {
-                    ChartFeedInteractorDefault(dataCmp.objRepo, netCmp.networkProvider)
-                }
-
-                override fun provideChartFeedFeature(): ChartFeedFeature {
-                    return ChartFeedFeature(
-                        chartFeed = chartFeedInteractor,
-                        respRepo = dataCmp.responseRepo,
-                    )
-                }
-
-                override fun provideObjListFeature(
-                    data: Router.Objects,
-                ): ObjListFeature {
-                    return ObjListFeature(
-                        data = data,
-                        objRepo = dataCmp.objRepo
-                    )
-                }
-
-                override fun provideReviewFeature(): ObjReviewFeature {
-                    return ObjReviewFeature()
-                }
-
-                override fun provideReportCategoryFeature(data: Router.ReportCategory): ReportCategoryFeature {
-                    return ReportCategoryFeature(data.objAddress, dataCmp.reportRepo)
-                }
-
-                override fun provideReportSubcategoryFeature(data: Router.ReportSubcategory): ReportSubcategoryFeature {
-                    return ReportSubcategoryFeature(data.objAddress, data.categoryId, dataCmp.reportRepo)
-                }
-
-                override fun provideReportSummaryFeature(data: Router.ReportSubmit): ReportSubmitFeature {
-                    return ReportSubmitFeature(
-                        data.objAddress,
-                        data.categoryId,
-                        data.subcategoryId,
-                        dataCmp.reportService
-                    )
-                }
-
-                override fun provideSettingsFeature(): SettingsFeature {
-                    return SettingsFeature(
-                        settingsRepo = dataCmp.settingsRepo
-                    )
-                }
-
-                override fun provideManageAppsFeature(): ManageAppsFeature {
-                    return ManageAppsFeature(
-                        installationRepo = dataCmp.installationRequestRepo,
-                        appUpdate = dataCmp.appUpdateInteractor
-                    )
-                }
-
-                override fun provideCustomNodeFeature(): CustomNodeFeature {
-                    return CustomNodeFeature(netCmp.nodeRepo)
-                }
-
-                override fun provideAddCustomNodeFeature(type: CustomNodeType): AddCustomNodeFeature {
-                    return AddCustomNodeFeature(type, netCmp.nodeRepo)
-                }
-            }
-        }
+    }
 }
 

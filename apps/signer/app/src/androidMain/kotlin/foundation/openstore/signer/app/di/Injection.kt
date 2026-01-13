@@ -1,65 +1,59 @@
 package foundation.openstore.signer.app.di
 
 import android.app.Application
-import com.openstore.app.core.root.DeviceRootProvider
 import foundation.openstore.signer.app.MainViewModel
 import foundation.openstore.signer.app.screens.SignerInjector
 import foundation.openstore.signer.app.screens.gcip.GcipFeatureComponent
 import foundation.openstore.signer.app.screens.gcip.GcipFeatureComponentDefault
 import foundation.openstore.signer.app.screens.gcip.GcipInjector
-import org.openwallet.kitten.core.ComponentProvider
-import org.openwallet.kitten.core.Kitten
+import foundation.openstore.kitten.core.ComponentRegistry
+import foundation.openstore.kitten.core.Kitten
 
 object SignerInjection {
     fun init(app: Application) {
         Kitten.init(
-            provider = SignerComponentProvider(app)
-        ) { deps ->
-            create { deps.dataCmp }
+            registry = SignerComponentRegistry(app)
+        ) {
+            create { dataCmp }
 
-            register(ActivityInjector) { deps.mainCmp }
-            register(SignerInjector) { deps.walletCmp }
-            register(GcipInjector) { deps.gcipFeatureCmp }
+            register(ActivityInjector) { mainCmp }
+            register(SignerInjector) { signerCmp }
+            register(GcipInjector) { gcipFeatureCmp }
         }
     }
 }
 
-class SignerComponentProvider(
+class SignerComponentRegistry(
     private val app: Application
-) : ComponentProvider() {
+) : ComponentRegistry() {
 
-    val stgCmp: StorageComponent
-        get() = singleOwner {
-            ModulesComponentDefault(app)
-        }
+    val stgCmp: StorageComponent by singleton {
+        ModulesComponentDefault(app)
+    }
 
-    val gcipCmp: GcipComponent
-        get() = singleOwner {
-            GcipComponentDefault(app = app, storageCmp = stgCmp)
-        }
+    val gcipCmp: GcipComponent by singleton {
+        GcipComponentDefault(app = app, storageCmp = stgCmp)
+    }
 
-    val dataCmp: DataComponent
-        get() = singleOwner {
-            DataComponentDefault(
-                storageCmp = stgCmp,
-                gcipCmp = gcipCmp,
-            )
-        }
+    val dataCmp: DataComponent by singleton {
+        DataComponentDefault(
+            storageCmp = stgCmp,
+            gcipCmp = gcipCmp,
+        )
+    }
 
-    val gcipFeatureCmp: GcipFeatureComponent
-        get() = multiOwner {
-            GcipFeatureComponentDefault(dataCmp, gcipCmp)
-        }
+    val gcipFeatureCmp: GcipFeatureComponent by shared {
+        GcipFeatureComponentDefault(dataCmp, gcipCmp)
+    }
 
-    val walletCmp: SignerComponent
-        get() = multiOwner {
-            SignerComponentDefault(dataCmp)
-        }
+    val signerCmp: SignerComponent by shared {
+        SignerComponentDefault(dataCmp, gcipCmp)
+    }
 
-    val mainCmp: MainComponent
-        get() = multiOwner<MainComponent> {
-            object : MainComponent {
-                override fun provideMainViewModel(): MainViewModel = MainViewModel(settingsRepo = dataCmp.walletSettingsRepository)
-            }
+    val mainCmp: MainComponent by shared<MainComponent> {
+        object : MainComponent {
+            override fun provideMainViewModel(): MainViewModel =
+                MainViewModel(settingsRepo = dataCmp.walletSettingsRepository)
         }
+    }
 }

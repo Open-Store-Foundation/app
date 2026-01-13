@@ -33,7 +33,7 @@ actual class GcipPartiProviderPlatform(
     actual override fun prepareWalletRawData(caller: String?): GcipResult<CallerData.Raw> {
         if (caller == null) {
             return GcipResult.ok(
-                CallerData.Raw(GcipPlatform.Ios.toScheme(), null, null) // TODO Scheme
+                CallerData.Raw(GcipPlatform.Ios.toScheme(), null, null)
             )
         }
 

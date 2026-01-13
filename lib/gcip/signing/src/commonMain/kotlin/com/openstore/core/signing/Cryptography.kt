@@ -265,6 +265,7 @@ object Cryptography {
             return wrapWithMaster(algorithm, seed, path) { index, key ->
                 val idx = DerivationPath.toSafeHardened(algorithm, index)
                     ?: throw IllegalStateException("Invalid derivation index: $index")
+
                 val data = byteArrayOf(0) + key.pk + i32(idx)
                 val I = Hash.hmacSha512(key.chain, data)
                 val IL = I.copyOfRange(0, 32)

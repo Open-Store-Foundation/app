@@ -157,6 +157,16 @@ class GcipViewModel(
         }
     }
 
+    // Spending Groups
+    // Create Spending Group
+    //
+    // Tab1:
+    // Add spending
+    // List of spending
+    //
+    // Tab2:
+    // Add People by Nicknames
+    // List of people
     private suspend fun handleResponse(response: CommonResponse) {
         val data = signerHandler.createResponse(response)
             .getOrCtx { ctx ->

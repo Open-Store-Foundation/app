@@ -1,16 +1,12 @@
 package com.openstore.app.installer
 
-import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
 import android.content.pm.PackageInstaller
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
 import com.openstore.app.installer.core.ScopedBroadcastReceiver
 import com.openstore.app.log.L
-
 
 class InstallationReceiver : ScopedBroadcastReceiver() {
     

@@ -33,7 +33,7 @@ interface GcipCborCoder {
     fun encodeClientRequest(request: ClientRequest): ByteArray
     fun decodeSignerRequest(method: GcipMethod, rawData: ByteArray): GcipResult<GcipRequestType>
 
-    fun encodeEncryptedMessage(rawData: ByteArray, iv: ByteArray, encryption: Encryption): GcipResult<ByteArray>
+    fun encodeEncryptedMessage(rawData: ByteArray, iv: ByteArray?, encryption: Encryption): GcipResult<ByteArray>
     fun decodeEncryptedMessage(message: ByteArray): GcipEncryptionMessage
 
     fun encodeResponse(response: CommonResponse): GcipResult<ByteArray>
@@ -117,7 +117,7 @@ class GcipCborCoderDefault(
         }
     }
 
-    override fun encodeEncryptedMessage(rawData: ByteArray, iv: ByteArray, encryption: Encryption): GcipResult<ByteArray> {
+    override fun encodeEncryptedMessage(rawData: ByteArray, iv: ByteArray?, encryption: Encryption): GcipResult<ByteArray> {
         val message = when (encryption) {
             is Encryption.Session -> GcipEncryptionMessage(
                 eid = encryption.eid,
@@ -156,7 +156,8 @@ class GcipCborCoderDefault(
         val response = builder.createResponse(response)
             .getOrError { return it }
 
-        val result = when (response) { // TODO
+        // We should expose type for reified
+        val result = when (response) {
             is GcipConnectResponse -> cbor.encodeToByteArray(response)
             is GcipDisconnectResponse -> cbor.encodeToByteArray(response)
             is GcipExchangeResponse -> cbor.encodeToByteArray(response)

@@ -87,6 +87,8 @@ include(
     ":lib:kitten:api",
     ":lib:kitten:core",
     ":lib:kitten:viewmodel",
+    ":lib:kitten:test-core",
+    ":lib:kitten:test-graph",
 
     // MVI
     ":lib:mvi",

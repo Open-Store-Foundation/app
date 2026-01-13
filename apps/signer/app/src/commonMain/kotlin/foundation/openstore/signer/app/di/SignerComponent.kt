@@ -38,6 +38,7 @@ interface SignerComponent : Component {
 
 class SignerComponentDefault(
     private val dataCmp: DataComponent,
+    private val gcipCmp: GcipComponent,
 ) : SignerComponent {
 
     override fun provideMainViewModel(): AppViewModel {
@@ -87,12 +88,14 @@ class SignerComponentDefault(
     override fun provideWalletListFeature(): WalletListFeature {
         return WalletListFeature(
             walletInteractor = dataCmp.walletInteractor,
+            server = gcipCmp.blePeripheralProvider,
         )
     }
 
     override fun provideWalletSelectorFeature(types: List<Derivation>): WalletListFeature {
         return WalletListFeature(
             walletInteractor = dataCmp.walletInteractor,
+            server = gcipCmp.blePeripheralProvider,
         )
     }
 

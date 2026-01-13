@@ -110,7 +110,6 @@ fun WalletSelectorScreen(
                             AvoirVerifiedMark()
                         }
                     },
-                    tag = {},
                     title = wallet.name,
                     subtitle = "$count connections",
                     bundleType = defaultBundleType(showingWallets.size, index),
@@ -119,7 +118,7 @@ fun WalletSelectorScreen(
             }
 
             if (!isExpanded && wallets.size > DEFAULT_VISIBLE_CREDS) {
-                item {
+                item("footer") {
                     Column(
                         modifier = Modifier
                             .animateItem(fadeInSpec = tween(300), fadeOutSpec = tween(300))

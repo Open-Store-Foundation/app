@@ -1,6 +1,5 @@
 package foundation.openstore.signer.app.di
 
-import com.openstore.app.core.root.DeviceRootProvider
 import foundation.openstore.kitten.api.Component
 import foundation.openstore.signer.app.data.mnemonic.CommonMnemonicWordsRepository
 import foundation.openstore.signer.app.data.mnemonic.LocalMnemonicRepository
@@ -16,7 +15,7 @@ import foundation.openstore.signer.app.data.wallet.PendingWalletRepository
 import foundation.openstore.signer.app.data.wallet.WalletInteractor
 import foundation.openstore.signer.app.data.wallet.WalletInteractorDefault
 import foundation.openstore.signer.app.utils.TimeGenerator
-import org.openwallet.kitten.core.depLazy
+import foundation.openstore.kitten.api.deps.depLazy
 
 interface DataComponent : Component {
     val mnemonicRepository: MnemonicRepository

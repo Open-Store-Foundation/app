@@ -59,26 +59,27 @@ class GcipWalletHandler(
             is ClientRequest.Disconnect, -> request.encryption
         }
 
-        val iv = encryptor.generateIv()
         val result = when (initialEncryption) {
             is Encryption.Handshake.Request -> cbor.encodeEncryptedMessage(
                 encryption = initialEncryption,
-                iv = iv,
+                iv = null,
                 rawData = requestData,
             )
-            is Encryption.Session -> cbor.encodeEncryptedMessage(
-                encryption = initialEncryption,
-                iv = iv,
-                rawData = encryptor.encrypt(
-                    eid = initialEncryption.eid,
-                    data = requestData,
-                    iv = iv,
-                    aad = encryptor.generateAad(
-                        signature = signature,
+            is Encryption.Session -> encryptor.generateIv().let {
+                cbor.encodeEncryptedMessage(
+                    encryption = initialEncryption,
+                    iv = it,
+                    rawData = encryptor.encrypt(
                         eid = initialEncryption.eid,
-                    )
-                ).getOrError { return it }
-            )
+                        data = requestData,
+                        iv = it,
+                        aad = encryptor.generateAad(
+                            signature = signature,
+                            eid = initialEncryption.eid,
+                        )
+                    ).getOrError { return it }
+                )
+            }
         }
 
         val data = result.getOrError { return it }

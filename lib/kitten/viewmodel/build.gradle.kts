@@ -1,6 +1,12 @@
 plugins {
     id("core.multiplatform")
+    id("core.publishing")
     alias(libs.plugins.composeCompiler)
+}
+
+publishingConfig {
+    group = "foundation.openstore.kitten"
+    artifactId = "viewmodel"
 }
 
 kotlin {

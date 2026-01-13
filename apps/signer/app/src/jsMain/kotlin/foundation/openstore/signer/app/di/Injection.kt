@@ -1,33 +1,30 @@
 package foundation.openstore.signer.app.di
 
 import foundation.openstore.signer.app.screens.SignerInjector
-import org.openwallet.kitten.core.ComponentProvider
-import org.openwallet.kitten.core.Kitten
+import foundation.openstore.kitten.core.ComponentRegistry
+import foundation.openstore.kitten.core.Kitten
 
 object SignerInjection {
     fun init() {
         Kitten.init(
-            provider = SignerProvider()
-        ) { deps ->
-            register(SignerInjector) { deps.walletCmp }
+            registry = SignerRegistry()
+        ) {
+            register(SignerInjector) { walletCmp }
         }
     }
 }
 
-class SignerProvider : ComponentProvider() {
+class SignerRegistry : ComponentRegistry() {
 
-    val mdlCmp: StorageComponent
-        get() = singleOwner {
-            WebStorageComponent()
-        }
+    val mdlCmp: StorageComponent by singleton {
+        WebStorageComponent()
+    }
 
-    val dataCmp: DataComponent
-        get() = singleOwner {
-            DataComponentDefault(storageCmp = mdlCmp)
-        }
+    val dataCmp: DataComponent by singleton {
+        DataComponentDefault(storageCmp = mdlCmp)
+    }
 
-    val walletCmp: SignerComponent
-        get() = multiOwner {
-            SignerComponentDefault(dataCmp)
-        }
+    val walletCmp: SignerComponent by shared {
+        SignerComponentDefault(dataCmp)
+    }
 }

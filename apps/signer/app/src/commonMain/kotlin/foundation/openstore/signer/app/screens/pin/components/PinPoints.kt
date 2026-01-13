@@ -1,7 +1,6 @@
 package foundation.openstore.signer.app.screens.pin.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.RepeatableSpec
@@ -36,7 +35,6 @@ import com.openstore.app.core.async.Async
 import com.openstore.app.ui.animations.SpringEasing
 import foundation.openstore.signer.app.screens.pin.PIN_COUNT
 import foundation.openstore.signer.app.screens.pin.PinPointsEvents
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -64,12 +62,9 @@ internal fun PinPoints(
     var stateColor by remember { mutableStateOf(pinColors.filledColor) }
 
     val pins = remember(count) {
-        mutableListOf<Animatable<Float, AnimationVector1D>>()
-            .apply {
-                repeat(PIN_COUNT) {
-                    add(Animatable(1.0f))
-                }
-            }
+        MutableList(PIN_COUNT) {
+            Animatable(1.0f)
+        }
     }
 
     LaunchedEffect(Unit) {

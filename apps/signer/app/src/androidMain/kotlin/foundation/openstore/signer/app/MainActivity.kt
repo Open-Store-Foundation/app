@@ -11,17 +11,12 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.openstore.app.ui.AppTheme
 import com.openstore.app.ui.rememberAppTheme
-import com.openstore.app.ui.setAppTheme
-import com.openstore.app.ui.systemAppTheme
-import foundation.openstore.kitten.android.withViewModel
-import foundation.openstore.signer.app.di.ActivityInjector
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // val viewModel = ActivityInjector.withViewModel { provideMainViewModel() }
-
         enableEdgeToEdge()
 
         setContent {

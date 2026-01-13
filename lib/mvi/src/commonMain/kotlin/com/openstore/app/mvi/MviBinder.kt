@@ -1,5 +1,6 @@
 package com.openstore.app.mvi
 
+import androidx.compose.ui.util.fastForEachIndexed
 import com.openstore.app.mvi.props.MviMutableProperty
 import com.openstore.app.mvi.props.MviProperty
 import com.openstore.app.mvi.props.MviPropertyLiveData
@@ -44,7 +45,7 @@ class MviBinder<S>(
 //        }
 
         emitterScope.launch {
-            bindings.forEachIndexed { index, bind ->
+            bindings.fastForEachIndexed { index, bind ->
                 val newState = bind.mapper.map(state)
                 bind.property.setValue(newState)
             }

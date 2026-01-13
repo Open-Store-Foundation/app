@@ -43,7 +43,7 @@ class GcipSerializationTest {
                 transport = Transport.Internal,
             ),
             encryption = Encryption.Handshake.Request(ExchangeKey(byteArrayOf(1))),
-            nonce = 1
+            nonce = 1u
         )
         val encoded = parser.encodeClientRequest(request)
         val decoded = parser.decodeSignerRequest(GcipMethod.ConnectRequest, encoded)
@@ -85,7 +85,7 @@ class GcipSerializationTest {
             block = SignerBlock(
                 version = 1.toUByte(),
                 status = GcipStatus.Success,
-                nonce = 1,
+                nonce = 1u,
                 method = GcipMethod.ConnectResponse,
                 data = byteArrayOf()
             ),

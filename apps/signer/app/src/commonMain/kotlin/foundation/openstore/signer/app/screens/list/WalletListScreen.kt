@@ -101,8 +101,9 @@ fun WalletListScreen(
                         }
                     },
                     onClick = {
-                        showBottomSheet = false
-                        onCreateWallet()
+                        feature.sendAction(WalletListAction.Connect)
+//                        showBottomSheet = false
+//                        onCreateWallet()
                     }
                 )
                 Spacer(Modifier.height(8.dp))

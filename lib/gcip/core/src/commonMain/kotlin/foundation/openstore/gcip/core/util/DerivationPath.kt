@@ -18,8 +18,8 @@ object DerivationPath {
     }
 
     fun toSafeHardened(algorithm: Algorithm, index: UInt): UInt? {
-        return if (algorithm.isRequireHardened) { // TODO return null if not Hardened
-            toHardened(index)
+        return if (algorithm.isRequireHardened && !isHardened(index)) {
+            return null
         } else {
             index
         }

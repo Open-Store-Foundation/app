@@ -1082,7 +1082,7 @@ NFC, so we should compress our data as much possible.
       currently requesting the signature. It cannot whitelist trusted apps (e.g., "Allow only
       MetaMask") or block known malicious apps based on their Bundle ID.
     * **Mitigation:** The security model relies entirely on the user's explicit action of selecting
-      the Signer App from the system Share Sheet. // TODO in iOS it's easier to make MitM and you always now which app you're using
+      the Signer App from the system Share Sheet.
 
 * **5.5.2. iOS Origin Verification (Domain Spoofing):**
   Because the Caller Identity (5.5.1) is unknown, the Signer App cannot verify if the calling

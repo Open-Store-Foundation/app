@@ -9,6 +9,7 @@ import com.openstore.app.mvi.contract.MviAction
 import com.openstore.app.mvi.contract.MviState
 import com.openstore.app.mvi.contract.MviViewState
 import com.openstore.app.mvi.props.MviProperty
+import foundation.openstore.gcip.ble.BlePeripheralProvider
 import foundation.openstore.gcip.core.transport.GcipId
 import foundation.openstore.signer.app.data.dao.WalletWithConnections
 import foundation.openstore.signer.app.data.wallet.WalletInteractor
@@ -19,6 +20,7 @@ import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 sealed interface WalletListAction : MviAction {
     data object LoadWallets : WalletListAction
+    data object Connect : WalletListAction
 }
 
 data class WalletListState(
@@ -35,6 +37,7 @@ class WalletListViewState(
 @OptIn(ExperimentalAtomicApi::class)
 class WalletListFeature(
     private val walletInteractor: WalletInteractor,
+    private val server: BlePeripheralProvider,
 ) : MviFeature<WalletListAction, WalletListState, WalletListViewState>(
     initState = WalletListState(),
     initAction = WalletListAction.LoadWallets,
@@ -63,7 +66,6 @@ class WalletListFeature(
                         }
                     }
 
-
                     setState { copy(wallets = walletsState, indexes = indexes, isLoading = false) }
 
                     observeData()
@@ -71,6 +73,9 @@ class WalletListFeature(
                     L.e(e)
                     setState { copy(isLoading = false) }
                 }
+            }
+            is WalletListAction.Connect -> {
+                server.startHandshake(GcipId(ByteArray(16)))
             }
         }
     }

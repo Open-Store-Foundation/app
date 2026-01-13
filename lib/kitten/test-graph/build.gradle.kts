@@ -2,6 +2,12 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("multiplatform")
+    id("core.publishing")
+}
+
+publishingConfig {
+    group = "foundation.openstore.kitten"
+    artifactId = "test-graph"
 }
 
 kotlin {
