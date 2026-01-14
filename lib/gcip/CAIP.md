@@ -11,7 +11,7 @@ created: 2025-11-30
 
 ## Abstract
 
-A protocol based on FIDO2 WebAuthn principles for delegating private key storage and transaction
+A protocol based on FIDO2 [WebAuthn][webauthn] principles for delegating private key storage and transaction
 signing to a separate secure application (Signer App). It allows Client Apps (Wallets, DApps) running
 on various platforms (Mobile, Desktop, Web) to request Public Keys and sign content using a
 credential ID, without direct access to the user's mnemonic phrases or private keys. The protocol
@@ -177,12 +177,12 @@ GCIP uses two operational modes, depending on transport trust assumptions.
 ##### 2.2.3. Same-device trusted transports (Intent, ActionExtension, etc.)
 
 In same-device and OS-mediated transports where the channel has strong integrity and identity
-guarantees, the connection SHOULD be established with one RTT by performing `Connect` with an inline
+guarantees, the connection can be established with one RTT by performing `Connect` with an inline
 `exchangeKey` carried by `EncryptionMessage`.
 
 ##### 2.2.4. Cross environments (QR, BLE, NFC etc.)
 
-In cross-device or otherwise interceptable transports, the client SHOULD establish a session first
+In cross-device or otherwise interceptable transports, the client MUST establish a session first
 using `Exchange`, and then run `Connect` inside the established encrypted session.
 
 ##### 2.2.5. Session key derivation
@@ -486,18 +486,18 @@ This section defines the nested CBOR structures referenced by the operation payl
 
 **ClientData**
 
-| Key    | Field      | Type  | Req/Opt/Cond | Description                                                                                 |
-|:-------|:-----------|:------|:-------------|:--------------------------------------------------------------------------------------------|
-| `0x01` | **name**   | UTF-8 | required     | Display name shown to the user. Max 50 chars.                                               |
-| `0x02` | **origin** | UTF-8 | required     | Web Origin (RFC 6454), e.g. `https://app.uniswap.org`. Required for web-based interactions. |
+| Key    | Field      | Type  | Req/Opt/Cond | Description                                                                                   |
+|:-------|:-----------|:------|:-------------|:----------------------------------------------------------------------------------------------|
+| `0x01` | **name**   | UTF-8 | required     | Display name shown to the user. Max 50 chars.                                                 |
+| `0x02` | **origin** | UTF-8 | required     | Web Origin (WHATWG URL), e.g. `https://app.uniswap.org`. Required for web-based interactions. |
 
 **SignerData**
 
-| Key    | Field      | Type  | Req/Opt/Cond | Description                                         |
-|:-------|:-----------|:------|:-------------|:----------------------------------------------------|
-| `0x01` | **name**   | UTF-8 | required     | Display name shown to the user. Max 50 chars.       |
-| `0x02` | **scheme** | UTF-8 | required     | Platform Scheme (e.g., `android`, `ios`, `chrome`). |
-| `0x03` | **id**     | UTF-8 | required     | **Signer ID**. See **3.9.12**.                      |
+| Key    | Field      | Type  | Req/Opt/Cond | Description                                   |
+|:-------|:-----------|:------|:-------------|:----------------------------------------------|
+| `0x01` | **name**   | UTF-8 | required     | Display name shown to the user. Max 50 chars. |
+| `0x02` | **scheme** | UTF-8 | required     | Platform Scheme. See **3.9.11**.              |
+| `0x03` | **id**     | UTF-8 | required     | **Signer ID**. See **3.9.12**.                |
 
 #### 3.3. Challenge
 
@@ -612,7 +612,7 @@ Optional request metadata.
 
 ##### 3.9.2.1. COSE Key Structure
 
-A CBOR map conforming to COSE (RFC 8152) standards. Used for `exchangeKey` and credential `payload`.
+A CBOR map conforming to [COSE (RFC 8152)][rfc8152] standards. Used for `exchangeKey` and credential `payload`.
 
 | Key  | Name    | Description                              |
 |:-----|:--------|:-----------------------------------------|
@@ -711,7 +711,7 @@ For `scheme` field in SignerData (see **3.2**).
 | `w`   | Windows                                    |
 | `m`   | MacOS                                      |
 | `l`   | Linux                                      |
-| `ext` | Chrome Extension                           |
+| `ce`  | Chrome Extension                           |
 | `web` | Web Application                            |
 
 ##### 3.9.12. Signer ID
@@ -953,37 +953,38 @@ e.g. macOS, Windows, Linux, etc.).
 
 ##### 4.4.2. Web Extension with Mobile App via BLE, NFC, USB
 
-Requires the creation or usage of a separate protocol, similar to or identical to Hybrid transports
-within CTAP, which is outside of the scope of this proposal.
+Requires the creation or usage of a separate protocol, similar to or identical to [Hybrid transports][ctap-hybrid]
+within [CTAP][ctap], which is outside of the scope of this proposal.
 
 ### 5. Rationale
 
-#### 5.1. Why not WebAuthn / CTAP?
+#### 5.1. Why not [WebAuthn][webauthn] / [CTAP][ctap]?
 
 While Passkeys are a well-designed standard for authentication, they have several limitations for
 cryptocurrency wallets:
 
-* 5.1.1. **Incompatibility with BIP-84 and Derivation Paths:** Passkey = 1 pubKey, for more you
+* 5.1.1. **One Key Support:** 1 Passkey = 1 Public Key, for more you
   should create another one, so to cover several chains and accounts you should create hundreds of
-  passkeys. They typically do not support Hierarchical Deterministic (HD) Wallets.
-* 5.1.2. **Public Key Retrieval:** It is impossible to retrieve the public key after creation. You must store it somewhere to be able to restore the wallet address
+  passkeys.
+* 5.1.2. **Incompatibility with [BIP-84][bip84] and Derivation Paths:** Passkeys providers do not support Hierarchical Deterministic (HD) Wallets.
+* 5.1.3. **Public Key Retrieval:** It is impossible to retrieve the public key after creation. You must store it somewhere to be able to restore the wallet address
   later.
-* 5.1.3. **No Private Key Visibility:** Users cannot view their Private Key (PK) to create a paper
+* 5.1.4. **No Private Key Visibility:** Users cannot view their Private Key (PK) to create a paper
   backup.
-* 5.1.4. **Limited Curve Support:** Many providers do not support secp256k1, which is a basic curve
+* 5.1.5. **Limited Curve Support:** Many providers do not support secp256k1, which is a basic curve
   required for many blockchains.
-* 5.1.5. **Inefficient On-chain Verification:** Passkeys by default sign a challenge with some
+* 5.1.6. **Inefficient On-chain Verification:** Passkeys by default sign a challenge with some
   additional data (Client Data JSON), so smart contract wallets based on passkeys often must pass
   this client JSON data on-chain, which is sub-optimal (gas expensive).
-* 5.1.6. **Reliability:** Passkeys are often an additional auth level. Providers do not guarantee
+* 5.1.7. **Reliability:** Passkeys are often an additional auth level. Providers do not guarantee
   credential safety, it can be erased any time.
-* 5.1.7. **Limited Signing Transparency:** Users often cannot see the actual content they are
+* 5.1.8. **Limited Signing Transparency:** Users often cannot see the actual content they are
   signing, as passkeys typically sign the data without displaying it.
-* 5.1.8. **Service-Specific Binding:** Passkeys bind specific keys to specific services (
+* 5.1.9. **Service-Specific Binding:** Passkeys bind specific keys to specific services (
   `service1-cred1`, `service2-cred2`). GCIP employs a different model where a single credential
   source is reused across multiple services (`service1-cred1`, `service2-cred1`), which is more
   suitable for wallet interoperability.
-* 5.1.9. **Protocol Rigidity:** The protocol is difficult to extend or modify, limiting the ability
+* 5.1.10. **Protocol Rigidity:** The protocol is difficult to extend or modify, limiting the ability
   to quickly adapt to new requirements in the fast-paced blockchain ecosystem.
 
 #### 5.2. Relation to WalletConnect
@@ -1207,17 +1208,30 @@ Copyright and related rights waived via [CC0](https://creativecommons.org/public
 
 ## References
 
-- WebAuthn FIDO2: https://www.w3.org/TR/webauthn-2/
-- COSE ID: https://www.iana.org/assignments/cose/cose.xhtml
-- CTAP: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html
-- CTAP Hybrid Transports: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid
-- RFC 8949 (CBOR): https://www.rfc-editor.org/rfc/rfc8949.html
-- RFC 8152 (COSE): https://www.rfc-editor.org/rfc/rfc8152.html
-- RFC 6454 (Web Origin): https://www.rfc-editor.org/rfc/rfc6454.html
-- RFC 5869 (HKDF): https://www.rfc-editor.org/rfc/rfc5869.html
-- BIP-32 (HD Wallets): https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
-- BIP-84 (Derivation Scheme): https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
-- RFC 8032 (EdDSA): https://www.rfc-editor.org/rfc/rfc8032.html
-- RFC 7748 (Curve25519): https://www.rfc-editor.org/rfc/rfc7748.html
-- NIST SP 800-38D (
-  AES-GCM): https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+- [WebAuthn FIDO2][webauthn]
+- [COSE ID][cose-id]
+- [CTAP][ctap]
+- [CTAP Hybrid Transports][ctap-hybrid]
+- [RFC 8949 (CBOR)][rfc8949]
+- [RFC 8152 (COSE)][rfc8152]
+- [RFC 6454 (Web Origin)][rfc6454]
+- [RFC 5869 (HKDF)][rfc5869]
+- [BIP-32 (HD Wallets)][bip32]
+- [BIP-84 (Derivation Scheme)][bip84]
+- [RFC 8032 (EdDSA)][rfc8032]
+- [RFC 7748 (Curve25519)][rfc7748]
+- [NIST SP 800-38D (AES-GCM)][nist-sp-800-38d]
+
+[webauthn]: https://www.w3.org/TR/webauthn-2/
+[cose-id]: https://www.iana.org/assignments/cose/cose.xhtml
+[ctap]: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html
+[ctap-hybrid]: https://fidoalliance.org/specs/fido-v2.2-rd-20230321/fido-client-to-authenticator-protocol-v2.2-rd-20230321.html#sctn-hybrid
+[rfc8949]: https://www.rfc-editor.org/rfc/rfc8949.html
+[rfc8152]: https://www.rfc-editor.org/rfc/rfc8152.html
+[rfc6454]: https://www.rfc-editor.org/rfc/rfc6454.html
+[rfc5869]: https://www.rfc-editor.org/rfc/rfc5869.html
+[bip32]: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+[bip84]: https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
+[rfc8032]: https://www.rfc-editor.org/rfc/rfc8032.html
+[rfc7748]: https://www.rfc-editor.org/rfc/rfc7748.html
+[nist-sp-800-38d]: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf

@@ -78,6 +78,15 @@ object GcipCborTable {
         const val META_ID = 0x20L
     }
 
+    object ExchangeRequest {
+        const val TRANSPORT = 0x01L
+        const val META = Common.META_ID
+    }
+
+    object ExchangeResponse {
+        const val META = Common.META_ID
+    }
+
     object ConnectRequest {
         const val CLIENT_DATA = 0x01L
         const val CRED_REQUESTS = 0x02L
@@ -125,15 +134,6 @@ object GcipCborTable {
 
     object DisconnectResponse {
         const val CONNECTION_ID = 0x01L
-        const val META = Common.META_ID
-    }
-
-    object ExchangeRequest {
-        const val TRANSPORT = 0x01L
-        const val META = Common.META_ID
-    }
-
-    object ExchangeResponse {
         const val META = Common.META_ID
     }
 }

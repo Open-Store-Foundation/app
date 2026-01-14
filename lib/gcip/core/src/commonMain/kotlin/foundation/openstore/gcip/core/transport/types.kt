@@ -125,7 +125,7 @@ enum class GcipPlatform(
     Macos("m"),
     Linux("l"),
 
-    ChromeExtension("ext"),
+    ChromeExtension("ce"),
     Web("web"),
     ;
 }

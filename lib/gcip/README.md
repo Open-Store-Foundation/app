@@ -28,10 +28,10 @@ Legend:
 
 | Feature                      | Android | iOS | JS | Desktop | Native |
 |:-----------------------------|:-------:|:---:|:--:|:-------:|:------:|
-| **Supported**                    |    ✅    |  ✅  | ⏳  |    ❌    |   ❌    |
+| **Supported**                |    ✅    |  ✅  | ✅  |    ❌    |   ❌    |
 | **Handshake**                |         |     |    |         |        |
 | ECDH-P256                    |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
-| EdDH-X25519                  |    ⏳    |  ⏳  | ⏳  |    ⏳    |   ⏳    |
+| EdDH-X25519                  |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
 | **Encryption**               |         |     |    |         |        |
 | AES256                       |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
 | **Connection**               |         |     |    |         |        |
@@ -40,28 +40,26 @@ Legend:
 | BLE                          |    ❌    |  ❌  | ❌  |    ❌    |   ❌    |
 | NFC                          |    ❌    |  ❌  | ❌  |    ❌    |   ❌    |
 | USB                          |    ❌    |  ❌  | ❌  |    ❌    |   ❌    |
-| QR                           |    ❌    |  ❌  | ❌  |    ❌    |   ❌    |
 | **Apps**                     |         |     |    |         |        |
 | Wallet Sample                |    ✅    |  ✅  | ✅  |    ❌    |   ❌    |
-| Signer Sample                |    ✅    |  ✅  | ⚫  |    ❌    |   ⚫    |
+| Signer                       |    ✅    |  ✅  | ⚫  |    ❌    |   ⚫    |
 | **Platform Features**        |         |     |    |         |        |
 | Signer Caller's Parser       |    ✅    |  ⚫  | ❌  |    ❌    |   ⚫    |
 | Signer Client's Verification |    ✅    |  ⚫  | ❌  |    ❌    |   ⚫    |
 | Device Security Verification |    ✅    |  ❌  | ❌  |    ❌    |   ⚫    |
 | Challenge Transform          |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
 | **Credential SDK**           |         |     |    |         |        |
-| ECDSA-P256 (Message)         |    ⏳    |  ⏳  | ⏳  |    ⏳    |   ⏳    |
-| ECDSA-P256 (Digest)          |    ⏳    |  ⏳  | ❌  |    ⏳    |   ⏳    |
-| ECDSA-Secp256k1 (Message)    |    ✅    |  ✅  | ⏳  |    ✅    |   ✅    |
-| ECDSA-Secp256k1 (Digest)     |    ⏳    |  ⏳  | ❌  |    ⏳    |   ⏳    |
-| EdDSA-Ed25519 (Message)      |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
-| EdDSA-Ed25519 (Digest)       |    ⏳    |  ⏳  | ❌  |    ⏳    |   ⏳    |
+| ECDSA-P256 (Message)         |    ✅    |  ✅  | ❌  |    ✅    |   ✅    |
+| ECDSA-P256 (Digest)          |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
+| ECDSA-Secp256k1 (Message)    |    ✅    |  ✅  | ❌  |    ✅    |   ✅    |
+| ECDSA-Secp256k1 (Digest)     |    ✅    |  ✅  | ❌  |    ✅    |   ✅    |
+| EdDSA-Ed25519 (Digest)       |    ✅    |  ✅  | ❌  |    ✅    |   ✅    |
 | **Lib**                      |         |     |    |         |        |
 | Wallet Core                  |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
 | Signer Core                  |    ✅    |  ✅  | ✅  |    ✅    |   ✅    |
-| Wallet Platform              |    ✅    |  ✅  | ⏳  |    ❌    |   ❌    |
-| Signer Platform              |    ✅    |  ✅  | ✅  |    ❌    |   ❌    |
-| Wallet SDK                   |    ⏳    |  ❌  | ❌  |    ❌    |   ❌    |
+| Wallet Platform              |    ✅    |  ✅  | ✅  |    ❌    |   ❌    |
+| Signer Platform              |    ✅    |  ✅  | ⚫  |    ❌    |   ❌    |
+| Wallet SDK                   |    ✅    |  ✅  | ❌  |    ❌    |   ❌    |
 | Signer SDK                   |    ❌    |  ❌  | ⚫  |    ❌    |   ❌    |
 
 
