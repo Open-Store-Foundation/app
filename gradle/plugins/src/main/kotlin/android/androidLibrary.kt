@@ -5,9 +5,9 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import common.applyProjectCommon
 import org.gradle.api.Project
 
+context(target: KotlinMultiplatformAndroidLibraryTarget)
 fun Project.defaultAndroidTarget(
-    target: KotlinMultiplatformAndroidLibraryTarget,
-    versions: AndroidVersion,
+    versions: AndroidVersion = androidDefaultConfig().appVersions,
     namespace: String = "foundation.openstore.app",
     withResources: Boolean = false,
     setup: KotlinMultiplatformAndroidLibraryExtension.() -> Unit = {},

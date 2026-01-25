@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.openstore.app.log.L
-import foundation.openstore.kitten.android.scopes.OwnedScope
+import foundation.openstore.kitten.core.scope.OwnedScope
 
 abstract class ScopedBroadcastReceiver : BroadcastReceiver() {
 

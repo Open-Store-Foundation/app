@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.core.common)
                 implementation(projects.core.store)
                 implementation(projects.lib.kitten.api)
+                implementation(projects.lib.kitten.core)
                 implementation(projects.lib.kitten.viewmodel)
 
                 implementation(libs.cryptohash)

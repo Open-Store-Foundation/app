@@ -3,12 +3,10 @@ package common
 import Deps
 import android.AndroidVersion
 import android.defaultAndroidTarget
-import gradle.kotlin.dsl.accessors._d331aa179b38a7f1ef6e9c1372f179d9.androidLibrary
+import gradle.kotlin.dsl.accessors._5f9b97b4490741eb0c6557797296720c.androidLibrary
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -17,7 +15,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 fun Project.kotlinMultiplatform(
     commonDependenices: Deps,
-    androidVersions: AndroidVersion,
+    targets: Set<Target> = Target.entries.toSet(),
     sourceSet: NamedDomainObjectContainer<KotlinSourceSet>.() -> Unit = {}
 ) {
     extensions.getByType<KotlinMultiplatformExtension>()
@@ -28,51 +26,61 @@ fun Project.kotlinMultiplatform(
             }
 
             // JVM
-            jvm("desktop") {
-                compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_21)
+            if (targets.contains(Target.Desktop)) {
+                jvm("desktop") {
+                    compilerOptions {
+                        jvmTarget.set(JvmTarget.JVM_21)
+                    }
                 }
             }
 
-            androidLibrary {
-                defaultAndroidTarget(this, androidVersions)
+            if (targets.contains(Target.Android)) {
+                androidLibrary {
+                    defaultAndroidTarget()
+                }
             }
 
             // iOS
-            listOf(
-                iosX64(),
-                iosArm64(),
-                iosSimulatorArm64()
-            ).forEach { iosTarget ->
-                iosTarget.binaries.framework {
-                    baseName = publishNamespace()
+            if (targets.contains(Target.iOS)) {
+                listOf(
+                    iosX64(),
+                    iosArm64(),
+                    iosSimulatorArm64()
+                ).forEach { iosTarget ->
+                    iosTarget.binaries.framework {
+                        baseName = publishNamespace()
+                    }
                 }
             }
 
             // JS
-            js {
-                outputModuleName.set(jsNamespace("osf-"))
+            if (targets.contains(Target.Js)) {
+                js {
+                    outputModuleName.set(jsNamespace("osf-"))
 
-                browser {
-                    commonWebpackConfig {
-                        configDirectory = rootDir.resolve("res/webpack.config.d")
-                    }
+                    browser {
+                        commonWebpackConfig {
+                            configDirectory = rootDir.resolve("res/webpack.config.d")
+                        }
 
-                    testTask {
-                        useKarma {
-                            useConfigDirectory(rootDir.resolve("res/karma.config.d"))
-                            useChromeHeadless()
+                        testTask {
+                            useKarma {
+                                useConfigDirectory(rootDir.resolve("res/karma.config.d"))
+                                useChromeHeadless()
+                            }
                         }
                     }
-                }
 
-                useCommonJs()
+                    useCommonJs()
+                }
             }
 
             applyDefaultHierarchyTemplate {
                 common {
                     group("commonAllJvm") {
-                        withJvm()
+                        if (targets.contains(Target.Desktop)) {
+                            withJvm()
+                        }
                     }
                 }
             }
@@ -89,9 +97,11 @@ fun Project.kotlinMultiplatform(
                     }
                 }
 
-                val commonAllJvm = getByName("commonAllJvmMain")
-                androidMain.get()
-                    .dependsOn(commonAllJvm)
+                if (targets.contains(Target.Android)) {
+                    val commonAllJvm = getByName("commonAllJvmMain")
+                    androidMain.get()
+                        .dependsOn(commonAllJvm)
+                }
 
                 commonMain.dependencies {
                     implementation(commonDependenices.coroutines())
@@ -101,6 +111,8 @@ fun Project.kotlinMultiplatform(
                     implementation(commonDependenices.coroutinesTest())
                     implementation(commonDependenices.kotlinTest())
                 }
+
+                sourceSet()
             }
         }
 }

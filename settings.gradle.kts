@@ -58,18 +58,22 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(
     /////////////////////////////// APPS
     // Store
-    ":apps:store:app",
+    ":apps:store:app:shared",
+    ":apps:store:app:android",
     ":apps:store:core:strings",
     ":apps:store:core:installer",
     ":apps:store:core:cert",
     ":apps:store:feature:catalog",
 
     // Signer
-    ":apps:signer:app",
+    ":apps:signer:app:shared",
+    ":apps:signer:app:android",
     ":apps:signer:data",
 
     // Wallet Sample
-    ":apps:sample:wallet",
+    ":apps:sample:wallet:shared",
+    ":apps:sample:wallet:extension",
+    ":apps:sample:wallet:android",
 
     /////////////////////////////// LIBS
     // UI

@@ -5,6 +5,10 @@ plugins {
 }
 
 kotlin {
+    androidLibrary {
+        androidResources.enable = true
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.jetbrains.compose.components.resources)

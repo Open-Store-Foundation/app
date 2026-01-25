@@ -315,19 +315,19 @@ request/response structure, and flow description. Nested CBOR types are defined 
 
 **Flow description**:
 
-1. Client sends `gcip.connect.request` wrapped in `EncryptionMessage`.
-    - The `transport` field describes the channel the client is using (or intends to use) and is
+1. The Client MUST send `gcip.connect.request` wrapped in `EncryptionMessage`.
+    - The `transport` field is REQUIRED as it describes the channel the client is using (or intends to use) and is
       used for policy, UX, and origin verification heuristics.
-    - To establish a new secure session in one RTT, the client includes `exchangeKey` in
+    - To establish a new secure session in one RTT, the client MAY include `exchangeKey` in
       `EncryptionMessage`, with `eid`, `iv` omitted. In this mode, the `gcip.connect.request` CBOR
-      payload is sent in plaintext inside `EncryptionMessage.data`.
-2. Signer validates request format, supported algorithms, and origin (when possible).
-3. Signer prompts the user to approve the connection and the disclosure of derived public keys.
-4. Signer derives requested credentials, assigns a `credId` to each derivation.
-5. Signer generates its own ephemeral key pair, computes the shared secret (`sessionKey`), and
-   includes its `exchangeKey` in the response `EncryptionMessage` alongside a newly generated `eid`
-   and ecrypted `payloadBody` with `sessionKey`.
-6. Signer returns `gcip.connect.response`.
+      payload MUST be sent in plaintext inside `EncryptionMessage.data`.
+2. The Signer MUST validate the request format, supported algorithms, and origin (when possible).
+3. The Signer MUST prompt the user to approve the connection and the disclosure of derived public keys.
+4. The Signer MUST derive requested credentials and assign a `credId` to each derivation.
+5. The Signer MUST generate its own ephemeral key pair, compute the shared secret (`sessionKey`), and
+   include its `exchangeKey` in the response `EncryptionMessage` alongside a newly generated `eid`
+   and encrypted `payloadBody` with `sessionKey`.
+6. The Signer MUST return `gcip.connect.response`.
 
 ##### 2.4.2. Exchange
 
@@ -352,13 +352,13 @@ request/response structure, and flow description. Nested CBOR types are defined 
 
 **Flow description**:
 
-1. Client sends `gcip.exchange.request` wrapped in `EncryptionMessage` with `exchangeKey` present,
-   `eid` and `iv` omitted.
-2. Signer generates a response key pair and a new `eid`.
-3. Signer returns `gcip.exchange.response` wrapped in `EncryptionMessage` with `eid` set and
+1. The Client MUST send `gcip.exchange.request` wrapped in `EncryptionMessage` with `exchangeKey` present.
+   The `eid` and `iv` fields MUST be omitted.
+2. The Signer MUST generate a response key pair and a new `eid`.
+3. The Signer MUST return `gcip.exchange.response` wrapped in `EncryptionMessage` with `eid` set and
    `exchangeKey` present.
-4. Both parties compute the shared secret (`sessionKey`) using ECDH. Future messages using this`eid`
-   are encrypted with this key.
+4. Both parties MUST compute the shared secret (`sessionKey`) using ECDH. Future messages using this `eid`
+   MUST be encrypted with this key.
 
 ##### 2.4.0. Exchange vs Connect (and why both exist)
 
@@ -410,11 +410,11 @@ already-known derivations.
 
 **Flow description**:
 
-1. Client sends `gcip.extend.request` with an existing `connectionId` and requested credential
+1. The Client MUST send `gcip.extend.request` with an existing `connectionId` and requested credential
    derivations.
-2. Signer validates `connectionId` and request fields.
-3. Signer prompts the user to approve returning additional public credentials.
-4. Signer returns `gcip.extend.response`.
+2. The Signer MUST validate `connectionId` and request fields.
+3. The Signer MUST prompt the user to approve returning additional public credentials.
+4. The Signer MUST return `gcip.extend.response`.
 
 ##### 2.4.4. Sign
 
@@ -444,12 +444,12 @@ a valid `connectionId`.
 
 **Flow description**:
 
-1. Client sends `gcip.sign.request` with `connectionId`, `credId`, and `challenge`.
-2. Signer validates the connection and credential authorization, and checks algorithm and transform
+1. The Client MUST send `gcip.sign.request` with `connectionId`, `credId`, and `challenge`.
+2. The Signer MUST validate the connection and credential authorization, and check algorithm and transform
    support.
-3. Signer displays a confirmation UI with origin (and verification status when available) and a
+3. The Signer MUST display a confirmation UI with origin (and verification status when available) and a
    user-meaningful representation of the challenge when possible.
-4. After explicit user approval, Signer returns `gcip.sign.response`.
+4. After explicit user approval, the Signer MUST return `gcip.sign.response`.
 
 ##### 2.4.5. Disconnect
 
@@ -475,8 +475,8 @@ a valid `connectionId`.
 
 **Flow description**:
 
-1. Client sends `gcip.disconnect.request` with `connectionId`.
-2. Signer invalidates the connection and returns `gcip.disconnect.response`.
+1. The Client MUST send `gcip.disconnect.request` with `connectionId`.
+2. The Signer MUST invalidate the connection and return `gcip.disconnect.response`.
 
 ### 3. Nested CBOR Structures and Types
 

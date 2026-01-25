@@ -1,18 +1,17 @@
 [versions]
 #Kotlin
 kotlin = "2.3.0"
-ksp = "2.3.0"
+ksp = "2.3.4"
 
 # Android
 android-sdk-tools = "36.0.0"
 android-sdk-min = "24"
 android-sdk-compile = "36"
 android-sdk-target = "36"
-android-plugin = "8.13.2"
+android-plugin = "9.0.0"
 
 # Jetbrains
-jetbrains-multiplatform = "1.10.0-rc02"
-jetbrains-hotreload = "1.0.0"
+jetbrains-multiplatform = "1.10.0"
 jetbrains-material3 = "1.9.0"
 jetbrains-icons = "1.7.3"
 jetbrains-lifecycle = "2.9.6"
@@ -46,9 +45,11 @@ androidx-lifecycle = "2.10.0"
 # UI
 coil = "3.3.0"
 
-[libraries]
+maven-publish = "0.30.0"
 
-# Android
+[libraries]
+# Gradle
+gradle-maven-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "maven-publish" }
 android-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-plugin" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
@@ -115,7 +116,6 @@ android-permissions = { module = "com.google.accompanist:accompanist-permissions
 android-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
 android-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 android-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "androidx-ui-tooling" }
-androidx-annotations = { module = "androidx.annotation:annotation", version.ref = "androidx-annotations" }
 
 # DB
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidx-room" }
@@ -123,14 +123,15 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidx-sqlite" }
 
 # Test
+androidx-annotations = { module = "androidx.annotation:annotation", version.ref = "androidx-annotations" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test" }
 
 [plugins]
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "jetbrains-multiplatform" }
-composeHotrealod = { id = "org.jetbrains.compose.hot-reload", version.prefer = "compose-hotreload" }
 
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 

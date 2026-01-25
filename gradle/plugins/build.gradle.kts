@@ -11,7 +11,7 @@ dependencies {
     implementation(libs.android.plugin)
     implementation(libs.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
-    implementation("com.vanniktech:gradle-maven-publish-plugin:0.30.0")
+    implementation(libs.gradle.maven.publish.plugin)
 }
 
 allprojects {
@@ -19,6 +19,7 @@ allprojects {
         compilerOptions {
 //            allWarningsAsErrors.set(true)
             jvmTarget.set(JvmTarget.JVM_21)
+            freeCompilerArgs.addAll(listOf("-Xcontext-parameters"))
         }
     }
 }

@@ -1,47 +1,44 @@
 import android.AndroidVersion
-import android.androidConfig
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.internal.dsl.DefaultConfig
+import android.androidDefaultConfig
+import com.android.build.api.dsl.ApplicationDefaultConfig
+import com.android.build.api.dsl.ApplicationExtension
 import common.applyProjectCommon
 
 plugins {
     id("com.android.application")
 }
 
-val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
-val androidConf = androidConfig(libs)
-
 applyProjectCommon()
 
 android {
-    applyAndroidCommonBase(androidConf.appVersions)
+    applyAndroidApp()
+
+    compileOptions {
+        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_21
+    }
 
     buildFeatures {
         compose = true
     }
 }
 
-private fun BaseExtension.applyAndroidCommonBase(
-    versions: AndroidVersion,
-    testInstrumentationRunner: String? = null,
+private fun ApplicationExtension.applyAndroidApp(
+    versions: AndroidVersion = androidDefaultConfig().appVersions,
+    testRunner: String? = null,
     manifestPlaceholders: Map<String, Any> = emptyMap(),
-    configSetup: DefaultConfig.() -> Unit = {},
+    configSetup: ApplicationDefaultConfig.() -> Unit = {},
 ) {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    compileSdkVersion(versions.compileSdk)
-    buildToolsVersion(versions.buildTools)
+    compileSdk = versions.compileSdk
+    buildToolsVersion = versions.buildTools
 
     defaultConfig {
         minSdk = versions.minSdk
         targetSdk = versions.targetSdk
 
-        manifestPlaceholders(manifestPlaceholders)
-        testInstrumentationRunner?.let {
-            setTestInstrumentationRunner(it)
+        addManifestPlaceholders(manifestPlaceholders)
+        testRunner?.let {
+            testInstrumentationRunner = it
         }
 
         configSetup()
